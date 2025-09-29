@@ -1,39 +1,80 @@
 import 'package:flutter/material.dart';
 
 class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String head; 
-  final String img;  
+  final String head;
+  final String? img;
 
-  const MyCustomAppBar({
-    Key? key,
-    required this.head,
-    required this.img,
-  }) : super(key: key); 
+  const MyCustomAppBar({Key? key, required this.head, required this.img})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+
     return Container(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      color: const Color.fromARGB(255, 255, 255, 255),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: Icon(Icons.menu, color: Colors.white),
-            onPressed: () {},
+      padding: EdgeInsets.only(top: statusBarHeight, left: 8, right: 8),
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 245, 245, 245),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey, 
+            width: 1.0,
           ),
-          Text(
-            head, // now it works
-            style: const TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          CircleAvatar( 
-            backgroundImage: AssetImage(img ??'copaw/assets/NULLP.webp' ),
-          ),
-        ],
+        ),
+      ),
+      child: SizedBox(
+        height: kToolbarHeight,
+        child: Stack(
+          children: [
+            // Center Title
+            Center(
+              child: Text(
+                head,
+                style: const TextStyle(
+                  color: Color(0xFF171B1E),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+
+            // Right side (notification + avatar)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.notifications_outlined,
+                      color: Color(0xFF3772BB),
+                    ),
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 8), // spacing
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundImage: img != null && img!.isNotEmpty
+                        ? AssetImage(img!)
+                        : const AssetImage('assets/NULLP.webp'),
+                    onBackgroundImageError: (exception, stackTrace) {
+                      debugPrint('Image not found, using fallback.');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize {
+    final double statusBarHeight =
+        WidgetsBinding.instance.window.padding.top /
+            WidgetsBinding.instance.window.devicePixelRatio;
+    return Size.fromHeight(statusBarHeight + kToolbarHeight);
+  }
 }
