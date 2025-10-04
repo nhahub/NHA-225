@@ -1,5 +1,6 @@
+import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
 import 'package:flutter/material.dart';
-import 'utils/constants.dart';
+import 'utils/app_colors.dart';
 import 'feature/widgets/common/custom_bottom_nav.dart';
 
 void main() {
@@ -57,20 +58,6 @@ class _HomePageState extends State<HomePage> {
 }
 
 // Example Screens
-class ProjectsScreen extends StatelessWidget {
-  const ProjectsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Projects Screen',
-        style: TextStyle(fontSize: 22, color: AppColors.textColor),
-      ),
-    );
-  }
-}
-
 class KanbanScreen extends StatelessWidget {
   const KanbanScreen({super.key});
 
