@@ -1,11 +1,17 @@
 import 'package:copaw/Feature/widgets/project/project_card.dart';
 import 'package:copaw/utils/app_assets.dart';
 import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 
-class ProjectsScreen extends StatelessWidget {
+class ProjectsScreen extends StatefulWidget {
   const ProjectsScreen({super.key});
 
+  @override
+  State<ProjectsScreen> createState() => _ProjectsScreenState();
+}
+
+class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -13,7 +19,9 @@ class ProjectsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.createProject);
+        },
         backgroundColor: AppColors.mainColor,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, size: 30, color: AppColors.whiteColor),
@@ -61,7 +69,7 @@ class ProjectsScreen extends StatelessWidget {
             },
           ),
         ],
-        backgroundColor: AppColors.whiteColor,
+        backgroundColor: AppColors.transparentColor,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(
             height * 0.001,

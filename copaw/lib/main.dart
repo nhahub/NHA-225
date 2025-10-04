@@ -1,4 +1,6 @@
+import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
+import 'package:copaw/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'utils/app_colors.dart';
 import 'feature/widgets/common/custom_bottom_nav.dart';
@@ -14,11 +16,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Custom Bot Nav Bar',
-      theme: ThemeData(
-        primaryColor: AppColors.mainColor,
-      ),
-      home: const HomePage(),
+      theme: ThemeData(primaryColor: AppColors.mainColor),
+      routes: {
+        AppRoutes.home: (context) => const HomePage(),
+        AppRoutes.createProject: (context) => const CreateProjectScreen(),
+      },
+      initialRoute: AppRoutes.home,
     );
   }
 }
