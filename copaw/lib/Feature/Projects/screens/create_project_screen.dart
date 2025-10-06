@@ -47,8 +47,8 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: height * 0.03),
-            CustomTextField(
-              label: "Project Title",
+            CustomTextFormField(
+              labelText: "Project Title",
               hintText: "Enter project name",
               controller: projectNameController,
             ),
