@@ -3,11 +3,11 @@ import 'package:copaw/utils/app_colors.dart';
 
 class Customcontainer extends StatelessWidget {
   final double Width;
-  final double Height;
+  final double? Height;
   final Widget? child;
 
   const Customcontainer({
-    required this.Height,
+     this.Height,
     required this.Width,
     this.child,
     super.key,
