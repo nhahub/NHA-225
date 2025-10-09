@@ -1,3 +1,4 @@
+import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
 import 'package:copaw/utils/app_routes.dart';
@@ -19,9 +20,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primaryColor: AppColors.mainColor),
       routes: {
         AppRoutes.home: (context) => const HomePage(),
+        AppRoutes.login: (context) =>  LoginScreen(),
         AppRoutes.createProject: (context) => const CreateProjectScreen(),
       },
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.login,
     );
   }
 }

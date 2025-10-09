@@ -37,51 +37,55 @@ class CustomTextFormField extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      maxLines: maxLines ?? 1,
-      decoration: InputDecoration(
-        enabledBorder: borderDecoration(colorBorder: colorBorder),
-        focusedBorder: borderDecoration(colorBorder: colorBorder),
-        errorBorder: borderDecoration(colorBorder: AppColors.warningColor),
-        focusedErrorBorder: borderDecoration(
-          colorBorder: AppColors.warningColor,
+    return SizedBox(
+      height: 60,
+      width: 420,
+      child: TextFormField(
+        maxLines: maxLines ?? 1,
+        decoration: InputDecoration(
+          enabledBorder: borderDecoration(colorBorder: colorBorder),
+          focusedBorder: borderDecoration(colorBorder: colorBorder),
+          errorBorder: borderDecoration(colorBorder: AppColors.warningColor),
+          focusedErrorBorder: borderDecoration(
+            colorBorder: AppColors.warningColor,
+          ),
+          hintText: hintText,
+          hintStyle:
+              hintStyle ??
+              TextStyle(
+                color: AppColors.grayColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+          labelText: labelText,
+          labelStyle:
+              labelStyle ??
+              TextStyle(
+                color: AppColors.grayColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+          prefixIcon: prefixIcon,
+          suffix: suffixIcon,
+          errorStyle: TextStyle(
+            color: AppColors.warningColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-        hintText: hintText,
-        hintStyle:
-            hintStyle ??
-            TextStyle(
-              color: AppColors.grayColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-        labelText: labelText,
-        labelStyle:
-            labelStyle ??
-            TextStyle(
-              color: AppColors.grayColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-        prefixIcon: prefixIcon,
-        suffix: suffixIcon,
-        errorStyle: TextStyle(
-          color: AppColors.warningColor,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
+        keyboardType: keyBoardType,
+        obscureText: obscureText,
+        controller: controller,
+        validator: validator,
+        cursorColor: AppColors.mainColor,
+        obscuringCharacter: obscuringCharacter ?? '.',
       ),
-      keyboardType: keyBoardType,
-      obscureText: obscureText,
-      controller: controller,
-      validator: validator,
-      cursorColor: AppColors.mainColor,
-      obscuringCharacter: obscuringCharacter ?? '.',
     );
   }
 
   OutlineInputBorder borderDecoration({required Color colorBorder}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(color: colorBorder, width: 2),
     );
   }
