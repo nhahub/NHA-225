@@ -4,6 +4,7 @@ import 'package:copaw/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'utils/app_colors.dart';
 import 'feature/widgets/common/custom_bottom_nav.dart';
+import 'Feature/Ai/screens/ai_assistant_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,7 +40,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const ProjectsScreen(),
     const KanbanScreen(),
-    const AiAssistantScreen(),
+     AiAssistantScreen()
   ];
 
   void _onItemTapped(int index) {
@@ -75,16 +76,3 @@ class KanbanScreen extends StatelessWidget {
   }
 }
 
-class AiAssistantScreen extends StatelessWidget {
-  const AiAssistantScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'AI Assistant Screen',
-        style: TextStyle(fontSize: 22, color: AppColors.textColor),
-      ),
-    );
-  }
-}
