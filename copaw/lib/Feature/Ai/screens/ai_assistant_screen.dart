@@ -5,7 +5,7 @@ import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Feature/widgets/AI/ProjectList.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/AI/SelectTasks.dart';
-
+import 'package:copaw/Feature/widgets/AI/customchat.dart';
 class AiAssistantScreen extends StatelessWidget {
   AiAssistantScreen({super.key});
 
@@ -32,6 +32,7 @@ class AiAssistantScreen extends StatelessWidget {
 
               const SelectTasks(),
               const SizedBox(height: 50),
+              const Customchat()
             ],
           ),
         ),
