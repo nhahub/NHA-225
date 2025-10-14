@@ -14,8 +14,8 @@ class CustomBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: AppColors.mainColor,
-      selectedItemColor: Colors.white,
+      backgroundColor: AppColors.whiteColor,
+      selectedItemColor: AppColors.mainColor,
       unselectedItemColor: AppColors.textColor.withOpacity(0.6),
       currentIndex: currentIndex,
       onTap: onTap,
@@ -24,9 +24,10 @@ class CustomBottomNav extends StatelessWidget {
           icon: Icon(Icons.folder_open),
           label: 'Projects',
         ),
+        BottomNavigationBarItem(icon: Icon(Icons.view_kanban), label: 'Kanban'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.view_kanban),
-          label: 'Kanban',
+          icon: Icon(Icons.calendar_month_outlined),
+          label: 'calender',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.smart_toy_outlined),

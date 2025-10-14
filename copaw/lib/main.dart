@@ -1,5 +1,6 @@
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
+import 'package:copaw/Feature/calender/screens/calender_screen.dart';
 import 'package:copaw/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'utils/app_colors.dart';
@@ -7,11 +8,11 @@ import 'feature/widgets/common/custom_bottom_nav.dart';
 import 'Feature/Ai/screens/ai_assistant_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Copaw());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Copaw extends StatelessWidget {
+  const Copaw({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,8 @@ class MyApp extends StatelessWidget {
       routes: {
         AppRoutes.home: (context) => const HomePage(),
         AppRoutes.createProject: (context) => const CreateProjectScreen(),
+        AppRoutes.calender: (context) => CalendarScreen(),
+        AppRoutes.Aichat: (context) => AiAssistantScreen(),
       },
       initialRoute: AppRoutes.home,
     );
@@ -40,7 +43,8 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const ProjectsScreen(),
     const KanbanScreen(),
-     AiAssistantScreen()
+    CalendarScreen(),
+    AiAssistantScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -75,4 +79,3 @@ class KanbanScreen extends StatelessWidget {
     );
   }
 }
-
