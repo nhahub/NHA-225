@@ -75,4 +75,3 @@ class KanbanScreen extends StatelessWidget {
     );
   }
 }
-
