@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "27268841055",
+    "project_id": "copaw-197af",
+    "storage_bucket": "copaw-197af.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27268841055:android:8aa748e33d1a3062a7a5ea",
+        "android_client_info": {
+          "package_name": "com.example.copaw"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "27268841055-be9tgl73uths2rj47nncbq193l4vn1v9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.copaw",
+            "certificate_hash": "e7c543084705c0e8252dda80edb28da8f1ce63b7"
+          }
+        },
+        {
+          "client_id": "27268841055-nl4sa62bl67m7hmdrg1425bo78963a9n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAczje27_Ihy3EMqmuoERFlF7A2NwyAVyU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "27268841055-nl4sa62bl67m7hmdrg1425bo78963a9n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
