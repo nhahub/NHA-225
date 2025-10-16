@@ -5,6 +5,7 @@ class AppUser {
   final String? photoUrl;
   final bool isLeader;
   final List<String> projectIds; 
+  final List<String> taskIds; 
 
   AppUser({
     required this.uid,
@@ -13,6 +14,7 @@ class AppUser {
     this.photoUrl,
     this.isLeader = false,
     this.projectIds = const [],
+    this.taskIds = const [],
   });
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class AppUser {
       photoUrl: json['photoUrl'],
       isLeader: json['isLeader'] ?? false,
       projectIds: List<String>.from(json['projectIds'] ?? []),
+      taskIds: List<String>.from(json['taskIds'] ?? []),
     );
   }
 
@@ -33,5 +36,6 @@ class AppUser {
         'photoUrl': photoUrl,
         'isLeader': isLeader,
         'projectIds': projectIds,
+        'taskIds': taskIds,
       };
 }
