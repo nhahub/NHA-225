@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 import 'utils/app_colors.dart';
 import 'feature/widgets/common/custom_bottom_nav.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'Services/firebaseServices/firebase_options.dart';
+import 'Feature/Ai/screens/ai_assistant_screen.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp (
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const Copaw());
 }
 
@@ -27,7 +26,7 @@ class Copaw extends StatelessWidget {
       theme: ThemeData(primaryColor: AppColors.mainColor),
       routes: {
         AppRoutes.home: (context) => const HomePage(),
-        AppRoutes.login: (context) =>  LoginScreen(),
+        AppRoutes.login: (context) => LoginScreen(),
 
         AppRoutes.createProject: (context) => const CreateProjectScreen(),
         AppRoutes.calender: (context) => CalendarScreen(),
