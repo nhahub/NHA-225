@@ -49,10 +49,9 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            // لو حابب تعمل ProGuard / shrinking فعل الأسطر دي
-            // minifyEnabled true
-            // shrinkResources true
-            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
