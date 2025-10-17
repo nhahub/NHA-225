@@ -45,9 +45,6 @@ android/app/release/
 # Firebase and Google services auto files
 **/google-services.json
 
-# Sensitive signing files (keystore + key.properties)
-android/app/release-key.jks
-android/key.properties
 
 # macOS / iOS build artifacts
 ios/Flutter/App.framework
