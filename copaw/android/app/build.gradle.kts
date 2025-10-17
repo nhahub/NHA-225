@@ -22,7 +22,6 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    // تحميل بيانات المفتاح من key.properties
     def keystoreProperties = new Properties()
     def keystorePropertiesFile = rootProject.file("key.properties")
     if (keystorePropertiesFile.exists()) {
