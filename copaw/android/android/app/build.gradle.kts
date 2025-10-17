@@ -1,10 +1,10 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
     id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -22,9 +22,8 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    // تحميل بيانات المفتاح من key.properties
     def keystoreProperties = new Properties()
-    def keystorePropertiesFile = rootProject.file("key.properties")
+    def keystorePropertiesFile = rootProject.file("../key.properties")
     if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
     }
@@ -49,10 +48,9 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-              
-             minifyEnabled true
-             shrinkResources true
-             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
