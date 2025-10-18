@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
@@ -15,6 +16,8 @@ void main() async{
   await Firebase.initializeApp (
   options: DefaultFirebaseOptions.currentPlatform,
 );
+  await FirebaseFirestore.instance.enableNetwork(); // Enable Firestore network to allow data storage and retrieval
+
   runApp(const Copaw());
 }
 
