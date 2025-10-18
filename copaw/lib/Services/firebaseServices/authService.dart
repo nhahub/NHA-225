@@ -1,73 +1,43 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+  import 'package:firebase_auth/firebase_auth.dart';
+  import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthService {
-  static FirebaseAuth auth = FirebaseAuth.instance;
-  static FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  static Future<UserCredential> register({
-    required String email,
-    required String password,
-    required String username,
-  }) async {
-    // إنشاء المستخدم في Firebase Auth
-    var userCredential = await auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    FirebaseAuth auth = FirebaseAuth.instance ;
 
-    
-    await userCredential.user!.updateDisplayName(username);
 
-    
-    await firestore.collection('users').doc(userCredential.user!.uid).set({
-      'uid': userCredential.user!.uid,
-      'email': email,
-      'username': username,
-      'isLeader': false,
-      'projectId': null,
-      'taskIds': [],
-      'createdAt': DateTime.now(),
-    });
 
-    return userCredential;
-  }
+  class AuthService {
+    static Future<UserCredential> register ({required String email , required String password , required String username}) async {
 
-  static Future<UserCredential> login({
-    required String email,
-    required String password,
-  }) async {
-    return await auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-  }
+      var user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
 
-  static Future<UserCredential> signInWithGoogle() async {
-    final googleUser = await GoogleSignIn.instance.authenticate();
-    final googleAuth = await googleUser!.authentication;
-    final credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
-
-    final userCredential = await auth.signInWithCredential(credential);
-
-    
-    final docRef = firestore.collection('users').doc(userCredential.user!.uid);
-    final doc = await docRef.get();
-    if (!doc.exists) {
-      await docRef.set({
-        'uid': userCredential.user!.uid,
-        'email': userCredential.user!.email,
-        'username': userCredential.user!.displayName ?? 'New User',
-        'isLeader': false,
-        'projectId': null,
-        'taskIds': [],
-        'createdAt': DateTime.now(),
-      });
+      await user.user!.updateDisplayName(username); 
+      
+        return user;
     }
 
-    return userCredential;
+    Future<UserCredential?> login ({required String email , required String password }) async {
+
+      
+      var user = await auth.signInWithEmailAndPassword(email: email, password: password);
+      return user;
+      }
+
+
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+      await GoogleSignIn.instance.initialize(
+      serverClientId: "27268841055-nl4sa62bl67m7hmdrg1425bo78963a9n.apps.googleusercontent.com"
+    );
+    final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth = googleUser!.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
-}
+  }
