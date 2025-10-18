@@ -1,3 +1,4 @@
+import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
