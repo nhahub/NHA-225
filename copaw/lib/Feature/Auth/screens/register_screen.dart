@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:copaw/Feature/Auth/bloc/auth_bloc.dart';
@@ -5,6 +6,7 @@ import 'package:copaw/Feature/Auth/bloc/auth_event.dart';
 import 'package:copaw/Feature/Auth/bloc/auth_state.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -21,15 +23,17 @@ class RegisterScreen extends StatelessWidget {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()),
           );
         } else if (state is AuthFailure) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
@@ -40,8 +44,13 @@ class RegisterScreen extends StatelessWidget {
                 key: _formKey,
                 child: Column(
                   children: [
-                    const Text("Create Your Account",
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    const Text(
+                      "Create Your Account",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     CustomTextFormField(
                       controller: nameController,
@@ -77,11 +86,13 @@ class RegisterScreen extends StatelessWidget {
                             label: "Register",
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                context.read<AuthBloc>().add(RegisterUserEvent(
-                                      email: emailController.text.trim(),
-                                      password: passwordController.text.trim(),
-                                      username: nameController.text.trim(),
-                                    ));
+                                context.read<AuthBloc>().add(
+                                  RegisterUserEvent(
+                                    email: emailController.text.trim(),
+                                    password: passwordController.text.trim(),
+                                    username: nameController.text.trim(),
+                                  ),
+                                );
                               }
                             },
                           ),
@@ -102,4 +113,6 @@ class RegisterScreen extends StatelessWidget {
       },
     );
   }
+
+
 }

@@ -1,41 +1,47 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AppUser {
-  final String uid;
-  final String? username;
-  final String? email;
-  final String? photoUrl;
-  final bool isLeader;
-  final List<String> projectIds; 
-  final List<String> taskIds; 
+  final String uid; 
+  final String email;
+  final String username;
+  final bool isLeader; 
+  final String? projectId;
+  final List<String> taskIds;
+  final DateTime createdAt;
 
   AppUser({
     required this.uid,
-    this.username,
-    this.email,
-    this.photoUrl,
+    required this.email,
+    required this.username,
     this.isLeader = false,
-    this.projectIds = const [],
+    this.projectId,
     this.taskIds = const [],
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
+  /// تحويل من JSON (Firestore → Model)
   factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
       uid: json['uid'],
-      username: json['username'],
       email: json['email'],
-      photoUrl: json['photoUrl'],
+      username: json['username'],
       isLeader: json['isLeader'] ?? false,
-      projectIds: List<String>.from(json['projectIds'] ?? []),
+      projectId: json['projectId'],
       taskIds: List<String>.from(json['taskIds'] ?? []),
+      createdAt: (json['createdAt'] as Timestamp).toDate(),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'username': username,
-        'email': email,
-        'photoUrl': photoUrl,
-        'isLeader': isLeader,
-        'projectIds': projectIds,
-        'taskIds': taskIds,
-      };
+  /// تحويل لـ JSON (Model → Firestore)
+  Map<String, dynamic> toJson() {
+    return {
+      'uid': uid,
+      'email': email,
+      'username': username,
+      'isLeader': isLeader,
+      'projectId': projectId,
+      'taskIds': taskIds,
+      'createdAt': createdAt,
+    };
+  }
 }

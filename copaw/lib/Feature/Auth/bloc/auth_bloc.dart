@@ -31,7 +31,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       GoogleSignInEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await authService.signInWithGoogle();
+      await AuthService.signInWithGoogle();
       emit(AuthSuccess(message: 'Signed in with Google'));
     } catch (e) {
       emit(AuthFailure(message: "Google sign-in failed"));
