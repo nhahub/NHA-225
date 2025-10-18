@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     projectId: 'copaw-197af',
     storageBucket: 'copaw-197af.firebasestorage.app',
   );
+
 }
