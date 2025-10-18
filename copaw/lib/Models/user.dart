@@ -1,34 +1,46 @@
 class UserModel {
-  static const String collectionName = "users";
-  String? id;
-  String? name;
-  String? email;
-  String? phone;
-  String? password;
-  String? confirmPassword;
+  static const String collectionName = 'users'; // ✅ Firestore collection name
+
+  final String id;
+  final String name;
+  final String email;
+  final bool isLeader;
+  final String? projectId;
+  final List<String> taskIds;
+  final String? phone;
 
   UserModel({
     required this.id,
-    this.name,
-    this.email,
-    this.password,
-    this.confirmPassword,
+    required this.name,
+    required this.email,
+    this.isLeader = false,
+    this.projectId,
+    this.taskIds = const [],
     this.phone,
   });
 
-  UserModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    email = json['email'];
-    phone = json['phone'];
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone']??'',
+      isLeader: json['isLeader'] ?? false,
+      projectId: json['projectId'],
+      taskIds: List<String>.from(json['taskIds'] ?? []),
+      
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['name'] = name;
-    data['email'] = email;
-    data['phone'] = phone;
-    return data;
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'isLeader': isLeader,
+      'projectId': projectId,
+      'taskIds': taskIds,
+      'phone':phone
+    };
   }
 }

@@ -18,8 +18,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         deadline: DateTime.utc(2025, 10, 11),
         projectId: 'proj_001',
         createdBy: 'user_001',
-        assignedTo: ['user_002'],
-        isCompleted: true,
+        assignedTo: 'user_002',
+        isCompleted: true, status: '', createdAt: DateTime.now(),
       ),
       Task(
         id: '1233',
@@ -28,8 +28,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         deadline: DateTime.utc(2025, 10, 11),
         projectId: 'proj_002',
         createdBy: 'user_001',
-        assignedTo: ['user_003'],
-        isCompleted: false,
+        assignedTo: 'user_003',
+        isCompleted: false, status: '', createdAt: DateTime.now(),
       ),
     ],
     DateTime.utc(2025, 10, 14): [
@@ -40,8 +40,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         deadline: DateTime.utc(2025, 10, 14),
         projectId: 'proj_001',
         createdBy: 'user_001',
-        assignedTo: ['user_004'],
-        isCompleted: false,
+        assignedTo: 'user_004',
+        isCompleted: false, status: '', createdAt: DateTime.now(),
       ),
     ],
   };
