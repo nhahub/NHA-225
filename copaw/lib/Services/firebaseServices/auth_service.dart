@@ -3,8 +3,6 @@ import 'package:copaw/Models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-FirebaseAuth auth = FirebaseAuth.instance;
-
 class AuthService {
   // This method returns a reference to the users collection in Firestore.
   // It uses a converter to convert between Firestore data and MyUser objects.
@@ -34,7 +32,6 @@ class AuthService {
     var querySnapshot = await getUsersCollection().doc(id).get();
     return querySnapshot.data();
   }
-
 
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
