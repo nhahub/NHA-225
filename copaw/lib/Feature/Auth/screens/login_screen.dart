@@ -87,7 +87,7 @@ class LoginScreen extends StatelessWidget {
                   onPressed: () async {
                      if (_formKey.currentState!.validate()) {
                       try {
-                        await AuthService.login(
+                        await AuthService().login(
                           email: emailcontroller.text.trim(),
                           password: passwordcontroller.text.trim(),
                         );
@@ -166,7 +166,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     onPressed: () async {
                       try {
-                        await AuthService.signInWithGoogle();
+                        await AuthService().signInWithGoogle();
                        
                         Navigator.push(
                           context,
