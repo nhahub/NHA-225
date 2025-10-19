@@ -95,38 +95,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               AppAssets.placeholder,
             ],
           ),
-          ProjectCard(
-            title: "ForgeFlow AI App Development",
-            totalTasks: 20,
-            completedTasks: 19,
-            deadline: DateTime(2024, 8, 15),
-            members: [AppAssets.placeholder, AppAssets.placeholder],
-          ),
-          ProjectCard(
-            title: "ForgeFlow AI App Development",
-            totalTasks: 20,
-            completedTasks: 11,
-            deadline: DateTime(2024, 8, 15),
-            members: [
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-            ],
-          ),
-          ProjectCard(
-            title: "ForgeFlow AI App Development",
-            totalTasks: 20,
-            completedTasks: 15,
-            deadline: DateTime(2024, 8, 15),
-            members: [
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-              AppAssets.placeholder,
-            ],
-          ),
+          
         ],
       ),
     );

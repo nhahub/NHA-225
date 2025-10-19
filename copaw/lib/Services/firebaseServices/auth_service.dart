@@ -4,53 +4,69 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  // This method returns a reference to the users collection in Firestore.
-  // It uses a converter to convert between Firestore data and MyUser objects.
+  /// 🔹 Reference to Firestore users collection
   static CollectionReference<UserModel> getUsersCollection() {
-    // Access the users collection in Firestore and set up a converter
-    // to convert Firestore documents to MyUser objects and vice versa.
-    return FirebaseFirestore
-        .instance // Access the Firestore instance
-        .collection(UserModel.collectionName) // Access the users collection
+    return FirebaseFirestore.instance
+        .collection(UserModel.collectionName)
         .withConverter<UserModel>(
-          // Use a converter to convert between Firestore data and MyUser objects
           fromFirestore: (snapshot, options) =>
               UserModel.fromJson(snapshot.data()!),
-          toFirestore: (myUser, options) => myUser.toJson(),
+          toFirestore: (user, options) => user.toJson(),
         );
   }
 
-  // This method adds a user to the Firestore database.
-  // It takes a MyUser object and saves it to the users collection.
-  static Future<void> addUserToFirestore(UserModel user) {
-    return getUsersCollection().doc(user.id).set(user);
+  /// 🔹 Add user to Firestore
+  static Future<void> addUserToFirestore(UserModel user) async {
+    await getUsersCollection().doc(user.id).set(user);
   }
 
-  // This method reads a user from Firestore based on their ID.
-  // It returns a MyUser object if found, or null if not found.
+  /// 🔹 Read user from Firestore by ID (old method)
   static Future<UserModel?> readUserFromFireStore(String id) async {
     var querySnapshot = await getUsersCollection().doc(id).get();
     return querySnapshot.data();
   }
 
+  /// 🔹 NEW: Cleaner alias method for readability
+  static Future<UserModel?> getUserById(String userId) async {
+    var userSnapshot = await getUsersCollection().doc(userId).get();
+    return userSnapshot.data();
+  }
+
+  /// 🔹 Get user by email
+static Future<UserModel?> getUserByEmail(String email) async {
+  final querySnapshot = await getUsersCollection()
+      .where('email', isEqualTo: email)
+      .limit(1)
+      .get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    return querySnapshot.docs.first.data();
+  } else {
+    return null; 
+  }
+}
+
+  /// 🔹 Google Sign-in
   Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
+    // Initialize Google Sign-In
     await GoogleSignIn.instance.initialize(
       serverClientId:
           "27268841055-nl4sa62bl67m7hmdrg1425bo78963a9n.apps.googleusercontent.com",
     );
-    final GoogleSignInAccount? googleUser = await GoogleSignIn.instance
-        .authenticate();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth = googleUser!.authentication;
+    // Authenticate user
+    final GoogleSignInAccount? googleUser =
+        await GoogleSignIn.instance.authenticate();
 
-    // Create a new credential
+    // Obtain the auth details
+    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+
+    // Create new Firebase credential
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
     );
 
-    // Once signed in, return the UserCredential
+    // Sign in with Firebase
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 }
