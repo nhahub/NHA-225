@@ -1,6 +1,7 @@
 import 'package:copaw/Feature/Auth/cubit/auth_states.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
+import 'package:copaw/provider/user_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,7 @@ class AuthViewModel extends Cubit<AuthStates> {
   // GlobalKey for the form state
   var formKey = GlobalKey<FormState>();
 
-  void register() async {
+  void register(BuildContext context) async {
     try {
       if (formKey.currentState!.validate()) {
         emit(AuthLoadingState());
@@ -42,6 +43,9 @@ class AuthViewModel extends Cubit<AuthStates> {
 
         // Add the user to Firestore using FirebaseUtils
         await AuthService.addUserToFirestore(myUser);
+
+        // Update the UserCubit with the new user information
+        context.read<UserCubit>().setUser(myUser);
         emit(AuthSuccessState(successMessage: "Registration successful"));
       }
     } on FirebaseAuthException catch (e) {
@@ -75,7 +79,7 @@ class AuthViewModel extends Cubit<AuthStates> {
     }
   }
 
-  void login() async {
+  void login(BuildContext context) async {
     try {
       if (formKey.currentState!.validate()) {
         emit(AuthLoadingState());
@@ -95,6 +99,9 @@ class AuthViewModel extends Cubit<AuthStates> {
         if (user == null) {
           return;
         }
+
+        // Update the UserCubit with the logged-in user's information
+        context.read<UserCubit>().setUser(user);
         emit(AuthSuccessState(successMessage: "Login successful"));
       }
     } on FirebaseAuthException catch (e) {
@@ -115,7 +122,7 @@ class AuthViewModel extends Cubit<AuthStates> {
     }
   }
 
-  void loginWithGoogle() async {
+  void loginWithGoogle(BuildContext context) async {
     try {
       emit(AuthLoadingState());
       UserCredential userCredential = await AuthService().signInWithGoogle();
@@ -135,7 +142,12 @@ class AuthViewModel extends Cubit<AuthStates> {
             email: user.email ?? 'No Email',
             phone: user.phoneNumber ?? 'No Phone',
           );
+          
+          // Add the new user to Firestore
           await AuthService.addUserToFirestore(newUser);
+
+          // Update the UserCubit with the new user information
+          context.read<UserCubit>().setUser(newUser);
         }
 
         emit(

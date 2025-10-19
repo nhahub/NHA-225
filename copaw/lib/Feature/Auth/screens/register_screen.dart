@@ -3,11 +3,9 @@ import 'package:copaw/Feature/Auth/cubit/auth_view_model.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
-import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/utils/app_routes.dart';
 import 'package:copaw/utils/app_validator.dart';
 import 'package:copaw/utils/dialog_utils.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -183,7 +181,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   CustomButton(
                     label: "Register",
-                    onPressed: () => authViewModel.register(),
+                    onPressed: () => authViewModel.register(context),
                   ),
 
                   const SizedBox(height: 25),
@@ -224,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           side: const BorderSide(color: Colors.grey),
                         ),
                       ),
-                      onPressed: () => authViewModel.loginWithGoogle(),
+                      onPressed: () => authViewModel.loginWithGoogle(context),
                     ),
                   ),
 
