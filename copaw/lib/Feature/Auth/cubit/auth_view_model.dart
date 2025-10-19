@@ -123,44 +123,52 @@ class AuthViewModel extends Cubit<AuthStates> {
   }
 
   void loginWithGoogle(BuildContext context) async {
-    try {
-      emit(AuthLoadingState());
-      UserCredential userCredential = await AuthService().signInWithGoogle();
-      User? user = userCredential.user;
+  try {
+    // Emit loading state
+    emit(AuthLoadingState());
+    
+    // 1. Sign in with Google
+    UserCredential userCredential = await AuthService().signInWithGoogle();
+    User? user = userCredential.user;
 
-      if (user != null) {
-        // Check if user exists in Firestore
-        UserModel? existingUser = await AuthService.readUserFromFireStore(
-          user.uid,
+    if (user != null) {
+      // 2. Try to get the user from Firestore
+      UserModel? existingUser = await AuthService.readUserFromFireStore(user.uid);
+
+      UserModel currentUser;
+
+      if (existingUser == null) {
+        // 3. If user does not exist, create a new user in Firestore
+        currentUser = UserModel(
+          id: user.uid,
+          name: user.displayName ?? 'No Name',
+          email: user.email ?? 'No Email',
+          phone: user.phoneNumber ?? 'No Phone',
         );
-
-        if (existingUser == null) {
-          // If user does not exist, create a new user in Firestore
-          UserModel newUser = UserModel(
-            id: user.uid,
-            name: user.displayName ?? 'No Name',
-            email: user.email ?? 'No Email',
-            phone: user.phoneNumber ?? 'No Phone',
-          );
-          
-          // Add the new user to Firestore
-          await AuthService.addUserToFirestore(newUser);
-
-          // Update the UserCubit with the new user information
-          context.read<UserCubit>().setUser(newUser);
-        }
-
-        emit(
-          AuthSuccessState(
-            successMessage: "Google sign-in successful",
-            user: user,
-          ),
-        );
+        await AuthService.addUserToFirestore(currentUser);
+      } else {
+        // 4. If user exists, use the existing user data
+        currentUser = existingUser;
       }
-    } on FirebaseAuthException catch (e) {
-      emit(AuthErrorState(errorMessage: e.message ?? "Google sign-in failed."));
-    } catch (e) {
-      emit(AuthErrorState(errorMessage: e.toString()));
+
+      // 5. Update the UserCubit to store the current user
+      context.read<UserCubit>().setUser(currentUser);
+
+      // 6. Emit success state
+      emit(
+        AuthSuccessState(
+          successMessage: "Google sign-in successful",
+          user: user,
+        ),
+      );
     }
+  } on FirebaseAuthException catch (e) {
+    // Emit error state for Firebase-specific exceptions
+    emit(AuthErrorState(errorMessage: e.message ?? "Google sign-in failed."));
+  } catch (e) {
+    // Emit error state for general exceptions
+    emit(AuthErrorState(errorMessage: e.toString()));
   }
+}
+
 }

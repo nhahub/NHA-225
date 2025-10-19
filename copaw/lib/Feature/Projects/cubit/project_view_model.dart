@@ -1,15 +1,33 @@
+import 'package:copaw/provider/user_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:copaw/Feature/Projects/cubit/project_states.dart';
 import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Services/firebaseServices/project_service.dart';
+import 'package:copaw/utils/app_assets.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 class ProjectViewModel extends Cubit<ProjectStates> {
-  ProjectViewModel() : super(ProjectInitialState());
+  ProjectViewModel() : super(ProjectInitialState()){
+    // Initialize selectedDate with today
+    selectedDate = DateFormat('MMM d, yyyy').format(DateTime.now());
+  }
+
+  // 🔹 Controllers and state
+  final TextEditingController projectNameController = TextEditingController();
+  String selectedDate = ""; // Initialized in constructor
+  List<String> teamMembers = [AppAssets.placeholder];
 
   /// 🔹 Create a new project and save it to Firestore
-  Future<void> createProject(ProjectModel project) async {
+  Future<void> createProject(BuildContext context) async {
     emit(ProjectLoadingState());
     try {
+      final user = context.read<UserCubit>().state;
+      var project = ProjectModel(
+        name: projectNameController.text,
+        deadline: DateFormat('MMM d, yyyy').parse(selectedDate),
+        leaderId: user?.id, // Replace with actual current user ID
+      );
       await ProjectService.addProjectToFirestore(project);
       emit(ProjectSuccessState(message: "Project created successfully"));
     } catch (e) {
@@ -29,9 +47,15 @@ class ProjectViewModel extends Cubit<ProjectStates> {
   }
 
   /// 🔹 Update an existing project in Firestore
-  Future<void> updateProject(ProjectModel project) async {
+  Future<void> updateProject(BuildContext context) async {
     emit(ProjectLoadingState());
     try {
+      final user = context.read<UserCubit>().state;
+      var project = ProjectModel(
+        name: projectNameController.text,
+        deadline: DateFormat('MMM d, yyyy').parse(selectedDate),
+        leaderId: user?.id, // Replace with actual current user ID
+      );
       await ProjectService.updateProject(project);
       emit(ProjectSuccessState(message: "Project updated successfully"));
     } catch (e) {
@@ -57,7 +81,7 @@ class ProjectViewModel extends Cubit<ProjectStates> {
     emit(ProjectLoadingState());
     try {
       await ProjectService.addUserToProjectByEmail(projectId, email);
-      emit(ProjectSuccessState(message: "👥 User added successfully"));
+      emit(ProjectSuccessState(message: "User added successfully"));
     } catch (e) {
       
       emit(ProjectErrorState(error: e.toString()));

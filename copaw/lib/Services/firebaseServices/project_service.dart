@@ -34,7 +34,7 @@ class ProjectService {
     project.id = projectDocRef.id;
 
     // 🔹 Get leader info
-    final leader = await AuthService.getUserById(project.leaderId);
+    final leader = await AuthService.getUserById(project.leaderId!);
     if (leader != null && !project.users.any((u) => u.id == leader.id)) {
       project.users.add(leader);
     }
@@ -43,7 +43,7 @@ class ProjectService {
     await projectDocRef.set(project);
 
     // 🔹 Save only inside the leader’s sub collection
-    await getUserProjectsCollection(project.leaderId)
+    await getUserProjectsCollection(project.leaderId!)
         .doc(project.id)
         .set(project);
   }

@@ -8,7 +8,7 @@ class ProjectModel {
   String id;
   String name;
   DateTime deadline;
-  String leaderId; // team leader ID (user who created the project)
+  String? leaderId; // team leader ID (user who created the project)
   List<UserModel> users;
   List<String> todoTasks;
   List<String> doingTasks;
@@ -19,12 +19,15 @@ class ProjectModel {
     this.id = "",
     required this.name,
     required this.deadline,
-    required this.leaderId,
-    this.users = const [],
-    this.todoTasks = const [],
-    this.doingTasks = const [],
-    this.doneTasks = const [],
-  });
+    this.leaderId,
+    List<UserModel>? users,
+    List<String>? todoTasks,
+    List<String>? doingTasks,
+    List<String>? doneTasks,
+  }) : users = users ?? [], // mutable list
+       todoTasks = todoTasks ?? [],
+       doingTasks = doingTasks ?? [],
+       doneTasks = doneTasks ?? [];
 
   // Convert object → Firestore JSON
   Map<String, dynamic> toFirestore() {
@@ -47,7 +50,8 @@ class ProjectModel {
       name: data['name'] ?? '',
       leaderId: data['leader_id'] ?? '',
       deadline: DateTime.fromMillisecondsSinceEpoch(data['deadline'] ?? 0),
-      users: (data['users'] as List<dynamic>?)
+      users:
+          (data['users'] as List<dynamic>?)
               ?.map((u) => UserModel.fromJson(u as Map<String, dynamic>))
               .toList() ??
           [],
