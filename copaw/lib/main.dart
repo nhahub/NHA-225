@@ -3,6 +3,7 @@ import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
+import 'package:copaw/Feature/Projects/screens/project_details_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
 import 'package:copaw/provider/user_cubit.dart';
 import 'package:copaw/utils/app_routes.dart';
@@ -37,8 +38,8 @@ class Copaw extends StatelessWidget {
       routes: {
         AppRoutes.home: (context) => const HomePage(),
         AppRoutes.login: (context) => LoginScreen(),
-
         AppRoutes.createProject: (context) => const CreateProjectScreen(),
+        AppRoutes.projectDetails: (context) => const ProjectDetailsScreen(),
         AppRoutes.calender: (context) => CalendarScreen(),
         AppRoutes.Aichat: (context) => AiAssistantScreen(),
       },

@@ -18,7 +18,7 @@ class AuthViewModel extends Cubit<AuthStates> {
 
   // GlobalKey for the form state
   var formKey = GlobalKey<FormState>();
-
+  
   void register(BuildContext context) async {
     try {
       if (formKey.currentState!.validate()) {

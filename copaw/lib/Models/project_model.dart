@@ -13,6 +13,8 @@ class ProjectModel {
   List<String> todoTasks;
   List<String> doingTasks;
   List<String> doneTasks;
+  
+  int get totalTasks => todoTasks.length + doingTasks.length + doneTasks.length;
 
   // Constructor
   ProjectModel({

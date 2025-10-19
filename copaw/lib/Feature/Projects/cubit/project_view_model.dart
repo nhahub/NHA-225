@@ -36,10 +36,11 @@ class ProjectViewModel extends Cubit<ProjectStates> {
   }
 
   /// 🔹 Load all projects that belong to a specific user
-  Future<void> getUserProjects(String userId) async {
+  Future<void> getUserProjects(BuildContext context) async {
     emit(ProjectLoadingState());
     try {
-      final projects = await ProjectService.getUserProjects(userId);
+      final user = context.read<UserCubit>().state;
+      final projects = await ProjectService.getUserProjects(user?.id ?? '');
       emit(ProjectLoadedState(projects: projects));
     } catch (e) {
       emit(ProjectErrorState(error: e.toString()));
