@@ -1,6 +1,6 @@
 import 'package:copaw/Feature/Auth/cubit/auth_states.dart';
 import 'package:copaw/Models/user.dart';
-import 'package:copaw/Services/firebaseServices/authService.dart';
+import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -110,6 +110,43 @@ class AuthViewModel extends Cubit<AuthStates> {
           ),
         );
       }
+    } catch (e) {
+      emit(AuthErrorState(errorMessage: e.toString()));
+    }
+  }
+
+  void loginWithGoogle() async {
+    try {
+      emit(AuthLoadingState());
+      UserCredential userCredential = await AuthService().signInWithGoogle();
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Check if user exists in Firestore
+        UserModel? existingUser = await AuthService.readUserFromFireStore(
+          user.uid,
+        );
+
+        if (existingUser == null) {
+          // If user does not exist, create a new user in Firestore
+          UserModel newUser = UserModel(
+            id: user.uid,
+            name: user.displayName ?? 'No Name',
+            email: user.email ?? 'No Email',
+            phone: user.phoneNumber ?? 'No Phone',
+          );
+          await AuthService.addUserToFirestore(newUser);
+        }
+
+        emit(
+          AuthSuccessState(
+            successMessage: "Google sign-in successful",
+            user: user,
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      emit(AuthErrorState(errorMessage: e.message ?? "Google sign-in failed."));
     } catch (e) {
       emit(AuthErrorState(errorMessage: e.toString()));
     }

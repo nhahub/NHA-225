@@ -3,7 +3,7 @@ import 'package:copaw/Feature/Auth/cubit/auth_view_model.dart';
 import 'package:copaw/Feature/Auth/screens/register_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
-import 'package:copaw/Services/firebaseServices/authService.dart';
+import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/main.dart';
 import 'package:copaw/utils/app_routes.dart';
 import 'package:copaw/utils/app_validator.dart';
@@ -161,34 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         backgroundColor: Colors.white,
                       ),
-                      onPressed: () async {
-                        try {
-                          await AuthService().signInWithGoogle();
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
-                        } on FirebaseAuthException catch (e) {
-                          String message = "Google sign-in failed.";
-                          if (e.code ==
-                              'account-exists-with-different-credential') {
-                            message =
-                                'Account exists with a different sign-in method.';
-                          } else if (e.code == 'invalid-credential') {
-                            message = 'Invalid credentials. Try again.';
-                          }
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text(message)));
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Error occurred while signing in.'),
-                            ),
-                          );
-                        }
-                      },
+                      onPressed: () async => authViewModel.loginWithGoogle(),
                     ),
                   ),
 
