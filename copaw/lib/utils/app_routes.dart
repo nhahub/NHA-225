@@ -5,4 +5,5 @@ class AppRoutes {
   static const String projectDetails = '/projectDetails';
   static const String Aichat = '/aichat';
   static const String calender = '/calender';
+  static const String Taskscreen= '/KanbanScreen';
 }

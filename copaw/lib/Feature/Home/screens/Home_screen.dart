@@ -1,6 +1,7 @@
 import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
+import 'package:copaw/Feature/tasks/screens/tasks_screen.dart';
 import 'package:copaw/feature/widgets/common/custom_bottom_nav.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const ProjectsScreen(),
-    const KanbanScreen(),
+    KanbanScreen(),
     CalendarScreen(),
     AiAssistantScreen(),
   ];
@@ -35,21 +36,6 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-      ),
-    );
-  }
-}
-
-// Example Screens
-class KanbanScreen extends StatelessWidget {
-  const KanbanScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Kanban Screen',
-        style: TextStyle(fontSize: 22, color: AppColors.textColor),
       ),
     );
   }

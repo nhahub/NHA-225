@@ -1,121 +1,103 @@
 import 'package:flutter/material.dart';
-import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Models/task.dart';
+import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 
 class TaskItem extends StatelessWidget {
   final Task task;
 
   const TaskItem({super.key, required this.task});
 
-  Color _getStatusColor() {
-    if (task.isCompleted) return Colors.green;
-    switch (task.status.toLowerCase()) {
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.green;
-      case 'in-progress':
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
+ Color getStatusColor() {
+  final now = DateTime.now();
+
+
+  if (task.deadline == null) {
+    return Colors.grey.shade400;
   }
 
-  String _getPriorityLabel() {
-    switch (task.status.toLowerCase()) {
-      case 'high':
-        return 'High';
-      case 'medium':
-        return 'Medium';
-      case 'low':
-        return 'Low';
-      default:
-        return 'Pending';
-    }
+  final diffDays = task.deadline!.difference(now).inDays;
+
+  
+  if (task.status.toLowerCase() == 'done') {
+    return Colors.green;
   }
+
+  
+  if (task.status.toLowerCase() == 'doing') {
+    if (diffDays <= 1) return Colors.blueAccent.shade700; // urgent
+    if (diffDays <= 3) return Colors.blueAccent.shade400; // soon
+    return Colors.blue.shade200; // plenty of time
+  }
+
+  
+  if (task.status.toLowerCase() == 'todo') {
+    if (diffDays < 0) return Colors.redAccent; // overdue
+    if (diffDays <= 1) return Colors.deepOrange; // tomorrow or today
+    if (diffDays <= 3) return Colors.orangeAccent; // soon
+    if (diffDays <= 7) return Colors.amber; // within a week
+    return Colors.grey.shade400; // far away
+  }
+
+  // Default fallback
+  return AppColors.mainColor;
+}
+
 
   @override
   Widget build(BuildContext context) {
-    final Color statusColor = _getStatusColor();
-    final String priorityLabel = _getPriorityLabel();
+    final Color sideColor = getStatusColor();
 
     return Customcontainer(
       Width: double.infinity,
-      child: Row(
+      Height: 160,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      sideColor: sideColor, 
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left colored bar
-          Container(
-            width: 4,
-            height: 80,
-            decoration: BoxDecoration(
-              color: statusColor,
-              borderRadius: BorderRadius.circular(4),
+          Text(
+            task.title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
-
-          const SizedBox(width: 10),
-
-          // Main content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          const SizedBox(height: 6),
+          Text(
+            task.description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.black54),
+          ),
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.calendar_month_sharp, size: 18, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    task.deadline != null
+                        ? "${task.deadline!.day}/${task.deadline!.month}/${task.deadline!.year}"
+                        : "No deadline",
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
                   ),
+                ],
+              ),
+              Text(
+                task.status.toUpperCase(),
+                style: TextStyle(
+                  color: sideColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  task.description,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      '📅 ${task.deadline != null ? _formatDate(task.deadline!) : 'No date'}',
-                      style: const TextStyle(fontSize: 13, color: Colors.black54),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        priorityLabel,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = date.difference(now).inDays;
-
-    if (difference == 0) return 'Today';
-    if (difference == 1) return 'Tomorrow';
-    if (difference < 0) return 'Overdue';
-    return '${date.toLocal().toString().split(' ')[0]}';
   }
 }

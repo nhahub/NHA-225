@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'utils/app_colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'Feature/tasks/screens/tasks_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,7 @@ class Copaw extends StatelessWidget {
         AppRoutes.projectDetails: (context) => const ProjectDetailsScreen(),
         AppRoutes.calender: (context) => CalendarScreen(),
         AppRoutes.Aichat: (context) => AiAssistantScreen(),
+        AppRoutes.Taskscreen:(context)=>KanbanScreen()
       },
       initialRoute: AppRoutes.login,
     );
