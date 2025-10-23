@@ -14,6 +14,9 @@ class ProjectModel {
   List<Task> tasks;
   Timestamp? createdAt;
 
+  List<Task> tasks;
+  Timestamp? createdAt;
+
   ProjectModel({
     this.id,
     this.name,
@@ -54,6 +57,13 @@ class ProjectModel {
       'description': description,
       'leaderId': leaderId,
       'users': users.map((u) => u.toJson()).toList(),
+      'tasks': tasks.map((t) => t.toJson()).toList(),
+      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
+      'deadline': deadline ?? FieldValue.serverTimestamp(),
+    };
+  }
+
+  Map<String, dynamic> toJson() => toFirestore();
       'tasks': tasks.map((t) => t.toJson()).toList(),
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
       'deadline': deadline ?? FieldValue.serverTimestamp(),

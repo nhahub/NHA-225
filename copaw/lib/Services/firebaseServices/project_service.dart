@@ -30,8 +30,9 @@ class ProjectService {
   /// - Save it in global projects collection
   /// - Save it in the leader's personal sub collection only
   static Future<void> addProjectToFirestore(ProjectModel project) async {
+    // 🟠 Create a new document ref (this gives us a non-empty unique ID)
     final projectDocRef = getProjectsCollection().doc();
-    project.id = projectDocRef.id;
+    project.id = projectDocRef.id; // 🟠 Assign the Firestore-generated ID
 
     // 🔹 Get leader info
     final leader = await AuthService.getUserById(project.leaderId!);
@@ -39,24 +40,28 @@ class ProjectService {
       project.users.add(leader);
     }
 
-    // 🔹 Save to global collection
+    // 🟠 Save to global collection (now safe because project.id is set)
     await projectDocRef.set(project);
 
-    // 🔹 Save only inside the leader’s sub collection
+    // 🟠 Save inside the leader’s subcollection using same ID
     await getUserProjectsCollection(project.leaderId!)
-        .doc(project.id)
+        .doc(project.id!)
         .set(project);
   }
 
   /// 🔹 Update project (sync global + all users sub collections)
   static Future<void> updateProject(ProjectModel project) async {
+    if (project.id == null || project.id!.isEmpty) {
+      throw Exception('Cannot update project: ID is null or empty');
+    }
+
     // Update main global project
     await getProjectsCollection().doc(project.id).update(project.toFirestore());
 
     // Sync with every user that’s part of the project
     for (final user in project.users) {
       await getUserProjectsCollection(user.id!)
-          .doc(project.id)
+          .doc(project.id!)
           .set(project);
     }
   }
@@ -67,10 +72,8 @@ class ProjectService {
     final project = doc.data();
 
     if (project != null) {
-      // Delete from global
       await getProjectsCollection().doc(projectId).delete();
 
-      // Delete from every user's sub collection
       for (final user in project.users) {
         await getUserProjectsCollection(user.id!)
             .doc(projectId)
@@ -82,13 +85,11 @@ class ProjectService {
   /// 🔹 Add user to project by email (Leader adds member)
   static Future<String> addUserToProjectByEmail(
       String projectId, String userEmail) async {
-    // search for user by email
     final user = await AuthService.getUserByEmail(userEmail);
     if (user == null) {
       return 'No user found with this email.';
     }
 
-    // get project data
     final docRef = getProjectsCollection().doc(projectId);
     final snapshot = await docRef.get();
 
@@ -99,16 +100,13 @@ class ProjectService {
     final project = snapshot.data()!;
     final exists = project.users.any((u) => u.id == user.id);
 
-    // if user not already in project, add them
     if (!exists) {
       project.users.add(user);
 
-      // Update global project document
       await docRef.update({
         'users': project.users.map((u) => u.toJson()).toList(),
       });
 
-      // Update user's sub collection
       await getUserProjectsCollection(user.id!)
           .doc(projectId)
           .set(project);
