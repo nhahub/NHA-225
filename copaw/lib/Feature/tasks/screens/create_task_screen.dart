@@ -1,3 +1,5 @@
+import 'package:copaw/Models/project_model.dart';
+import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
@@ -7,7 +9,9 @@ import 'package:copaw/utils/app_validator.dart';
 import 'package:flutter/material.dart';
 
 class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({super.key});
+  final ProjectModel project;
+
+  const CreateTaskScreen({super.key, required this.project});
 
   @override
   State<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -36,30 +40,25 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     }
   }
 
-  /// Save task function
-  void _saveTask() {
-    if (_formKey.currentState!.validate()) {
-      final newTask = Task(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: _titleController.text.trim(),
-        description: _descController.text.trim(),
-        assignedTo: ["user_1"],
-        status: _status,
-        deadline: _deadline,
-        createdAt: DateTime.now(),
-        projectId: "p1",
-        isCompleted: _status == 'done',
-        createdBy: "leader_1",
-      );
+  void _saveTask() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_deadline == null) return;
 
-      // TODO: save task to backend or local DB
+    final newTask = Task(
+      title: _titleController.text.trim(),
+      description: _descController.text.trim(),
+      deadline: _deadline!,
+      status: _status,
+      id: DateTime.now().millisecondsSinceEpoch.toString(), // or any unique ID
+      createdAt: DateTime.now(),
+      isCompleted: _status == 'done',
+      createdBy: '',
+      projectId: widget.project.id.toString(),
+    );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Task created successfully!')),
-      );
+    await TaskService.addTaskToProject(newTask, widget.project);
 
-      Navigator.pop(context, newTask);
-    }
+    Navigator.pop(context);
   }
 
   @override
@@ -90,17 +89,24 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 🟩 Title
-                const Text("Title", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "Title",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 6),
                 CustomTextFormField(
                   controller: _titleController,
                   hintText: "Enter task title",
-                  validator: (text) => AppValidators.nameValidator(text, context),
+                  validator: (text) =>
+                      AppValidators.nameValidator(text, context),
                 ),
                 const SizedBox(height: 16),
 
                 // 🟦 Description
-                const Text("Description", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "Description",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 6),
                 CustomTextFormField(
                   controller: _descController,
@@ -115,13 +121,18 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 🟨 Deadline
-                const Text("Deadline", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "Deadline",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: _pickDate,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 15,
+                    ),
                     decoration: BoxDecoration(
                       border: Border.all(color: AppColors.grayColor),
                       borderRadius: BorderRadius.circular(8),
@@ -143,7 +154,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 const SizedBox(height: 16),
 
                 // 🟧 Status
-                const Text("Status", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "Status",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   value: _status,

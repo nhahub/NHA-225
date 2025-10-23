@@ -14,9 +14,6 @@ class ProjectModel {
   List<Task> tasks;
   Timestamp? createdAt;
 
-  List<Task> tasks;
-  Timestamp? createdAt;
-
   ProjectModel({
     this.id,
     this.name,
@@ -26,26 +23,44 @@ class ProjectModel {
     List<Task>? tasks,
     this.createdAt,
     this.deadline,
-  })  : users = users ?? [],
-        tasks = tasks ?? [];
+  }) : users = users ?? [],
+       tasks = tasks ?? [];
 
   /// ✅ Convert Firestore data → ProjectModel
   factory ProjectModel.fromFirestore(Map<String, dynamic> data) {
+    DateTime? _convertToDate(dynamic value) {
+      if (value == null) return null;
+      if (value is Timestamp) return value.toDate();
+      if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+      if (value is DateTime) return value;
+      return null;
+    }
+
     return ProjectModel(
       id: data['id'],
       name: data['name'],
       description: data['description'],
       leaderId: data['leaderId'],
-      users: (data['users'] as List<dynamic>?)
+
+      users:
+          (data['users'] as List<dynamic>?)
               ?.map((u) => UserModel.fromJson(u))
               .toList() ??
           [],
-      tasks: (data['tasks'] as List<dynamic>?)
+
+      tasks:
+          (data['tasks'] as List<dynamic>?)
               ?.map((t) => Task.fromJson(t))
               .toList() ??
           [],
-      createdAt: data['createdAt'],
-      deadline: data['deadline'],
+
+      createdAt: data['createdAt'] is Timestamp
+          ? data['createdAt']
+          : (data['createdAt'] != null
+                ? Timestamp.fromMillisecondsSinceEpoch(data['createdAt'])
+                : null),
+
+      deadline: _convertToDate(data['deadline']),
     );
   }
 
@@ -59,14 +74,9 @@ class ProjectModel {
       'users': users.map((u) => u.toJson()).toList(),
       'tasks': tasks.map((t) => t.toJson()).toList(),
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
-      'deadline': deadline ?? FieldValue.serverTimestamp(),
-    };
-  }
-
-  Map<String, dynamic> toJson() => toFirestore();
-      'tasks': tasks.map((t) => t.toJson()).toList(),
-      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
-      'deadline': deadline ?? FieldValue.serverTimestamp(),
+      'deadline': deadline != null
+          ? Timestamp.fromDate(deadline!)
+          : FieldValue.serverTimestamp(),
     };
   }
 

@@ -91,6 +91,12 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                 controller: projectViewModel.projectNameController,
               ),
               SizedBox(height: height * 0.03),
+              CustomTextFormField(
+                labelText: "Project Descreption",
+                hintText: "Enter project Descreption",
+                controller: projectViewModel.projectDescreptionController
+              ),
+              SizedBox(height: height * 0.03),
               DatePickerField(
                 label: "Deadline",
                 dateText: projectViewModel.selectedDate,

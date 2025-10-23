@@ -40,10 +40,10 @@ class ProjectService {
       project.users.add(leader);
     }
 
-    // 🟠 Save to global collection (now safe because project.id is set)
+
     await projectDocRef.set(project);
 
-    // 🟠 Save inside the leader’s subcollection using same ID
+   
     await getUserProjectsCollection(project.leaderId!)
         .doc(project.id!)
         .set(project);

@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   CustomTextFormField(
                     controller: authViewModel.passwordController,
                     hintText: "Enter password",
-                    obscureText: false,
+                    obscureText: true,
                     validator: (value) =>
                         AppValidators.passwordValidator(value, context),
                   ),

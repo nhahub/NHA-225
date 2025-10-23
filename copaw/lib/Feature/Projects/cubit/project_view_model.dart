@@ -15,6 +15,7 @@ class ProjectViewModel extends Cubit<ProjectStates> {
 
   // 🔹 Controllers and state
   final TextEditingController projectNameController = TextEditingController();
+  final TextEditingController projectDescreptionController = TextEditingController();
   String selectedDate = ""; // Initialized in constructor
   List<String> teamMembers = [AppAssets.placeholder];
 
@@ -26,7 +27,8 @@ class ProjectViewModel extends Cubit<ProjectStates> {
       var project = ProjectModel(
         name: projectNameController.text,
         deadline: DateFormat('MMM d, yyyy').parse(selectedDate),
-        leaderId: user?.id, // Replace with actual current user ID
+        leaderId: user?.id,
+        description: projectDescreptionController.text,
       );
       await ProjectService.addProjectToFirestore(project);
       emit(ProjectSuccessState(message: "Project created successfully"));
