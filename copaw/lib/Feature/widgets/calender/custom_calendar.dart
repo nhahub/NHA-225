@@ -1,0 +1,209 @@
+import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:copaw/Models/task.dart';
+import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/Feature/calender/bloc/calendar_bloc.dart';
+import 'package:copaw/Feature/calender/bloc/calendar_event.dart';
+import 'package:copaw/Feature/calender/bloc/calendar_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class CustomCalendar extends StatelessWidget {
+  final CalendarBloc bloc;
+  final CalendarState state;
+  final List<Task> Function(DateTime, Map<DateTime, List<Task>>) getTasksForDay;
+
+  const CustomCalendar({
+    super.key,
+    required this.bloc,
+    required this.state,
+    required this.getTasksForDay,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (state is CalendarLoadingState) {
+      return _buildSkeleton();
+    } else if (state is CalendarLoadedState) {
+      final loadedState = state as CalendarLoadedState;
+      return _buildCalendar(context, bloc, loadedState);
+    } else {
+      return const Center(child: Text("Unexpected state"));
+    }
+  }
+
+  Widget _buildCalendar(
+    BuildContext context,
+    CalendarBloc bloc,
+    CalendarLoadedState state,
+  ) {
+    return Column(
+      children: [
+        TableCalendar<Task>(
+          firstDay: DateTime.utc(2020, 1, 1),
+          lastDay: DateTime.utc(2030, 12, 31),
+          focusedDay: state.focusedDay,
+          selectedDayPredicate: (day) => isSameDay(state.selectedDay, day),
+          eventLoader: (day) => getTasksForDay(day, state.tasksByDate),
+          startingDayOfWeek: StartingDayOfWeek.monday,
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
+            titleTextStyle: TextStyle(
+              color: AppColors.mainColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            leftChevronIcon: Icon(
+              Icons.chevron_left,
+              color: AppColors.mainColor,
+            ),
+            rightChevronIcon: Icon(
+              Icons.chevron_right,
+              color: AppColors.mainColor,
+            ),
+          ),
+          calendarStyle: CalendarStyle(
+            todayDecoration: BoxDecoration(
+              color: AppColors.mainColor.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            selectedDecoration: BoxDecoration(
+              color: AppColors.mainColor,
+              shape: BoxShape.circle,
+            ),
+            markerDecoration: BoxDecoration(
+              color: AppColors.warningColor,
+              shape: BoxShape.circle,
+            ),
+            markersMaxCount: 1,
+            outsideDaysVisible: false,
+          ),
+          onDaySelected: (selectedDay, focusedDay) {
+            bloc.add(SelectDay(selectedDay));
+          },
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: state.selectedDay == null
+              ? Center(
+                  child: Text(
+                    'Select a day to see tasks',
+                    style: TextStyle(
+                      color: AppColors.grayColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                )
+              : _buildTaskList(
+                  getTasksForDay(state.selectedDay!, state.tasksByDate),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskList(List<Task> tasks) {
+    if (tasks.isEmpty) {
+      return Center(
+        child: Text(
+          'No tasks for this day',
+          style: TextStyle(color: AppColors.grayColor),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.mainColor.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                task.isCompleted ? Icons.check_circle : Icons.access_time,
+                color: task.isCompleted ? Colors.green : Colors.orange,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  task.title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSkeleton() {
+    return Skeletonizer(
+      child: Column(
+        children: [
+          // 🔹 Month header
+          Container(
+            width: double.infinity,
+            height: 24,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(7, (index) {
+              return Container(
+                width: 40,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 8),
+
+          
+          ...List.generate(6, (row) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(7, (col) {
+                  return Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(
+                        20,
+                      ), // circle like days
+                    ),
+                  );
+                }),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}

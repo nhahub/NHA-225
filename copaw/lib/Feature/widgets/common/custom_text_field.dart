@@ -39,7 +39,7 @@ class CustomTextFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 60,
-      width: 420,
+      width: MediaQuery.of(context).size.width * 0.9,
       child: TextFormField(
         maxLines: maxLines ?? 1,
         decoration: InputDecoration(

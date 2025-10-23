@@ -1,17 +1,35 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
+import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
-import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
+import 'package:copaw/Feature/Projects/screens/project_details_screen.dart';
+import 'package:copaw/Feature/calender/screens/calender_screen.dart';
+import 'package:copaw/provider/user_cubit.dart';
 import 'package:copaw/utils/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'utils/app_colors.dart';
-import 'feature/widgets/common/custom_bottom_nav.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'Feature/tasks/screens/tasks_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseFirestore.instance
+      .enableNetwork(); // Enable Firestore network to allow data storage and retrieval
+
+  runApp(
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => UserCubit())],
+      child: const Copaw(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Copaw extends StatelessWidget {
+  const Copaw({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,73 +38,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primaryColor: AppColors.mainColor),
       routes: {
         AppRoutes.home: (context) => const HomePage(),
-        AppRoutes.login: (context) =>  LoginScreen(),
+        AppRoutes.login: (context) => LoginScreen(),
         AppRoutes.createProject: (context) => const CreateProjectScreen(),
+        AppRoutes.projectDetails: (context) => const ProjectDetailsScreen(),
+        AppRoutes.calender: (context) => CalendarScreen(),
+        AppRoutes.Aichat: (context) => AiAssistantScreen(),
+        AppRoutes.Taskscreen:(context)=>KanbanScreen()
       },
       initialRoute: AppRoutes.login,
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    const ProjectsScreen(),
-    const KanbanScreen(),
-    const AiAssistantScreen(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: CustomBottomNav(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    );
-  }
-}
-
-// Example Screens
-class KanbanScreen extends StatelessWidget {
-  const KanbanScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Kanban Screen',
-        style: TextStyle(fontSize: 22, color: AppColors.textColor),
-      ),
-    );
-  }
-}
-
-class AiAssistantScreen extends StatelessWidget {
-  const AiAssistantScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'AI Assistant Screen',
-        style: TextStyle(fontSize: 22, color: AppColors.textColor),
-      ),
-    );
-  }
-}
