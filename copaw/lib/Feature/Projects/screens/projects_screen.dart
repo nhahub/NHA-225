@@ -1,5 +1,6 @@
 import 'package:copaw/Feature/Projects/cubit/project_states.dart';
 import 'package:copaw/Feature/Projects/cubit/project_view_model.dart';
+import 'package:copaw/Feature/Projects/screens/project_details_screen.dart';
 import 'package:copaw/Feature/widgets/project/project_card.dart';
 import 'package:copaw/utils/app_assets.dart';
 import 'package:copaw/utils/app_colors.dart';
@@ -40,7 +41,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       ),
       appBar: AppBar(
         title: const Text(
-          'Co-Paw',
+          'CoPaw',
           style: TextStyle(
             color: AppColors.textColor,
             fontSize: 25,
@@ -78,10 +79,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         backgroundColor: AppColors.transparentColor,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(height * 0.001),
-          child: Container(
-            color: AppColors.grayColor,
-            height: height * 0.001,
-          ),
+          child: Container(color: AppColors.grayColor, height: height * 0.001),
         ),
       ),
       body: BlocBuilder<ProjectViewModel, ProjectStates>(
@@ -105,23 +103,24 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                 final project = state.projects[index];
                 return InkWell(
                   onTap: () {
-                    Navigator.pushNamed(
+                    Navigator.push(
                       context,
-                      AppRoutes.projectDetails,
-                      arguments: project, // send the clicked project
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProjectDetailsScreen(project: project),
+                      ),
                     );
                   },
+
                   child: ProjectCard(
-                    title: project.name,
-                    totalTasks: project.totalTasks,
-                    completedTasks: project.doneTasks.length,
-                    deadline: project.deadline,
-                    members: [
-                      AppAssets.placeholder,
-                      AppAssets.placeholder,
-                      AppAssets.placeholder,
-                      AppAssets.placeholder,
-                    ],
+                    title: project.name.toString(),
+                    totalTasks: project.tasks.length,
+                    completedTasks: project.tasks
+                        .where((t) => t.status == 'done')
+                        .length,
+
+                    deadline: project.deadline!.toUtc(),
+                    members: [project.users.toString()],
                   ),
                 );
               },

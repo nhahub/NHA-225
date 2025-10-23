@@ -6,4 +6,5 @@ class AppRoutes {
   static const String Aichat = '/aichat';
   static const String calender = '/calender';
   static const String Taskscreen= '/KanbanScreen';
+  
 }

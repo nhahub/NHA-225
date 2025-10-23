@@ -43,7 +43,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
-        assignedTo: "user_1",
+        assignedTo: ["user_1"],
         status: _status,
         deadline: _deadline,
         createdAt: DateTime.now(),

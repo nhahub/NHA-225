@@ -1,68 +1,57 @@
-import 'package:flutter/material.dart';
 import 'package:copaw/Models/task.dart';
-import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/Models/user.dart';
+import 'package:flutter/material.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
+import 'package:copaw/utils/app_colors.dart';
 
 class TaskItem extends StatelessWidget {
   final Task task;
+  final List<UserModel> projectUsers; // أرسلها من الشاشة
 
-  const TaskItem({super.key, required this.task});
+  const TaskItem({super.key, required this.task, required this.projectUsers});
 
- Color getStatusColor() {
-  final now = DateTime.now();
+  Color getStatusColor() {
+    final now = DateTime.now();
+    if (task.deadline == null) return Colors.grey.shade400;
 
+    final diffDays = task.deadline!.difference(now).inDays;
 
-  if (task.deadline == null) {
-    return Colors.grey.shade400;
+    if (task.status.toLowerCase() == 'done') return Colors.green;
+    if (task.status.toLowerCase() == 'doing') {
+      if (diffDays <= 1) return Colors.blueAccent.shade700;
+      if (diffDays <= 3) return Colors.blueAccent.shade400;
+      return Colors.blue.shade200;
+    }
+    if (task.status.toLowerCase() == 'todo') {
+      if (diffDays < 0) return Colors.redAccent;
+      if (diffDays <= 1) return Colors.deepOrange;
+      if (diffDays <= 3) return Colors.orangeAccent;
+      if (diffDays <= 7) return Colors.amber;
+      return Colors.grey.shade400;
+    }
+    return AppColors.mainColor;
   }
-
-  final diffDays = task.deadline!.difference(now).inDays;
-
-  
-  if (task.status.toLowerCase() == 'done') {
-    return Colors.green;
-  }
-
-  
-  if (task.status.toLowerCase() == 'doing') {
-    if (diffDays <= 1) return Colors.blueAccent.shade700; // urgent
-    if (diffDays <= 3) return Colors.blueAccent.shade400; // soon
-    return Colors.blue.shade200; // plenty of time
-  }
-
-  
-  if (task.status.toLowerCase() == 'todo') {
-    if (diffDays < 0) return Colors.redAccent; // overdue
-    if (diffDays <= 1) return Colors.deepOrange; // tomorrow or today
-    if (diffDays <= 3) return Colors.orangeAccent; // soon
-    if (diffDays <= 7) return Colors.amber; // within a week
-    return Colors.grey.shade400; // far away
-  }
-
-  // Default fallback
-  return AppColors.mainColor;
-}
-
 
   @override
   Widget build(BuildContext context) {
-    final Color sideColor = getStatusColor();
+    final sideColor = getStatusColor();
+
+    // 🧑‍💻 المستخدمين المعيّنين في المهمة
+    final assignedUsers = projectUsers
+        .where((u) => task.assignedTo.contains(u.id))
+        .toList();
 
     return Customcontainer(
       Width: double.infinity,
       Height: 160,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-      sideColor: sideColor, 
+      sideColor: sideColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            task.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
+          Text(task.title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 6),
           Text(
             task.description,
@@ -71,12 +60,31 @@ class TaskItem extends StatelessWidget {
             style: const TextStyle(color: Colors.black54),
           ),
           const Spacer(),
+
+
+          Row(
+            children: assignedUsers.map((user) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: CircleAvatar(
+                  radius: 14,
+                  backgroundImage: NetworkImage(user.avatarUrl ?? ''),
+                  backgroundColor: Colors.grey.shade300,
+                ),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 8),
+
+          // 📅 التاريخ + الحالة
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.calendar_month_sharp, size: 18, color: Colors.grey),
+                  const Icon(Icons.calendar_month_sharp,
+                      size: 18, color: Colors.grey),
                   const SizedBox(width: 6),
                   Text(
                     task.deadline != null

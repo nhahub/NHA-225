@@ -16,7 +16,7 @@ class KanbanScreen extends StatelessWidget {
       id: "1",
       title: "Design UI for Project List Screen",
       description: "Create modern UI for project cards",
-      assignedTo: "user_1",
+      assignedTo: ["user_1"],
       status: "todo",
       deadline: DateTime.now(),
       createdAt: DateTime.now(),
@@ -28,7 +28,7 @@ class KanbanScreen extends StatelessWidget {
       id: "2",
       title: "Implement authentication module",
       description: "Add login and signup features",
-      assignedTo: "user_2",
+      assignedTo: ["user_2"],
       status: "doing",
       deadline: DateTime.now().add(const Duration(days: 1)),
       createdAt: DateTime.now(),
@@ -54,34 +54,34 @@ class KanbanScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumn("To Do", todoTasks),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               buildColumn("Doing", doingTasks),
             ],
           ),
         ),
       ),
       
-      // ✅ Add Task Button at Bottom
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Padding(
-          padding: const EdgeInsets.only(right: 30,left: 30),
-          child: CustomButton(
-            width: double.infinity,
-            label: "Add Task",
-            icon: Icons.add,
-            inverted: true,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreateTaskScreen(),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
+      // // ✅ Add Task Button at Bottom
+      // bottomNavigationBar: Padding(
+      //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      //   child: Padding(
+      //     padding: const EdgeInsets.only(right: 30,left: 30),
+      //     child: CustomButton(
+      //       width: double.infinity,
+      //       label: "Add Task",
+      //       icon: Icons.add,
+      //       inverted: true,
+      //       onPressed: () {
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(
+      //             builder: (context) => const CreateTaskScreen(),
+      //           ),
+      //         );
+      //       },
+      //     ),
+      //   ),
+      // ),
     );
   }
 
@@ -108,7 +108,7 @@ class KanbanScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             // Tasks
-            ...taskList.map((task) => TaskItem(task: task)).toList(),
+            ...taskList.map((task) => TaskItem(task: task,projectUsers: [],)).toList(),
             const SizedBox(height: 16),
           ],
         ),

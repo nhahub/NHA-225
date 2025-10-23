@@ -17,8 +17,7 @@ import 'Feature/tasks/screens/tasks_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseFirestore.instance
-      .enableNetwork(); // Enable Firestore network to allow data storage and retrieval
+  await FirebaseFirestore.instance.enableNetwork();
 
   runApp(
     MultiBlocProvider(
@@ -40,14 +39,11 @@ class Copaw extends StatelessWidget {
         AppRoutes.home: (context) => const HomePage(),
         AppRoutes.login: (context) => LoginScreen(),
         AppRoutes.createProject: (context) => const CreateProjectScreen(),
-        AppRoutes.projectDetails: (context) => const ProjectDetailsScreen(),
         AppRoutes.calender: (context) => CalendarScreen(),
         AppRoutes.Aichat: (context) => AiAssistantScreen(),
-        AppRoutes.Taskscreen:(context)=>KanbanScreen()
+        AppRoutes.Taskscreen: (context) => KanbanScreen(),
       },
       initialRoute: AppRoutes.login,
     );
   }
 }
-
-
