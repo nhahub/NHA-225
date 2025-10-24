@@ -21,6 +21,8 @@ CoPaw is a Flutter application that helps students and teams manage their projec
 
 ## Features
 
+* Authentication By Googel And Email
+* Calender View For tasks
 * Create, update, and delete projects
 * Create tasks inside projects
 * Track task status: To Do, Doing, Done
