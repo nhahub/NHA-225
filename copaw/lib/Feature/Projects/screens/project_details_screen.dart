@@ -1,4 +1,5 @@
 import 'package:copaw/Feature/tasks/screens/create_task_screen.dart';
+import 'package:copaw/Models/user.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,8 +12,9 @@ import 'package:copaw/Feature/Projects/cubit/project_detail_cubit.dart';
 
 class ProjectDetailsScreen extends StatelessWidget {
   final ProjectModel project;
+  final UserModel user;
 
-  const ProjectDetailsScreen({super.key, required this.project});
+  const ProjectDetailsScreen({super.key, required this.project , required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +23,10 @@ class ProjectDetailsScreen extends StatelessWidget {
       child: BlocBuilder<ProjectDetailsCubit, ProjectDetailsState>(
         builder: (context, state) {
           final project = state.project;
-          final todoTasks = project.tasks.where((t) => t.status == 'Todo');
-          final doingTasks = project.tasks.where((t) => t.status == 'Doing');
-          final doneTasks = project.tasks.where((t) => t.status == 'Done');
-
+          final todoTasks = project.tasks.where((t) => t.status == 'todo');
+          final doingTasks = project.tasks.where((t) => t.status == 'doing');
+          final doneTasks = project.tasks.where((t) => t.status == 'done');
+          
           return Scaffold(
             appBar: AppBar(
               backgroundColor: AppColors.mainColor,
@@ -71,7 +73,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                   final newTask = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CreateTaskScreen(project: project),
+                      builder: (_) => CreateTaskScreen(project: project , user: user),
                     ),
                   );
 

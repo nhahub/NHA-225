@@ -28,6 +28,7 @@ class ProjectViewModel extends Cubit<ProjectStates> {
         name: projectNameController.text,
         deadline: DateFormat('MMM d, yyyy').parse(selectedDate),
         leaderId: user?.id,
+        
         description: projectDescreptionController.text,
       );
       await ProjectService.addProjectToFirestore(project);

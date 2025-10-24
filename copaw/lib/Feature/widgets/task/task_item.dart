@@ -6,7 +6,7 @@ import 'package:copaw/utils/app_colors.dart';
 
 class TaskItem extends StatelessWidget {
   final Task task;
-  final List<UserModel> projectUsers; // أرسلها من الشاشة
+  final List<UserModel> projectUsers; 
 
   const TaskItem({super.key, required this.task, required this.projectUsers});
 
@@ -18,9 +18,11 @@ class TaskItem extends StatelessWidget {
 
     if (task.status.toLowerCase() == 'done') return Colors.green;
     if (task.status.toLowerCase() == 'doing') {
-      if (diffDays <= 1) return Colors.blueAccent.shade700;
-      if (diffDays <= 3) return Colors.blueAccent.shade400;
-      return Colors.blue.shade200;
+      if (diffDays < 0) return Colors.redAccent;
+      if (diffDays <= 1) return Colors.deepOrange;
+      if (diffDays <= 3) return Colors.orangeAccent;
+      if (diffDays <= 7) return Colors.amber;
+      return Colors.grey.shade400;
     }
     if (task.status.toLowerCase() == 'todo') {
       if (diffDays < 0) return Colors.redAccent;
@@ -36,7 +38,7 @@ class TaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final sideColor = getStatusColor();
 
-    // 🧑‍💻 المستخدمين المعيّنين في المهمة
+    
     final assignedUsers = projectUsers
         .where((u) => task.assignedTo.contains(u.id))
         .toList();
@@ -77,7 +79,7 @@ class TaskItem extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // 📅 التاريخ + الحالة
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

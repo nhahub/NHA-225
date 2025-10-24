@@ -16,7 +16,7 @@ class UserModel {
     required this.id,
     required this.name,
     required this.email,
-    this.isLeader = false,
+    this.isLeader = true,
     this.projectId,
     this.taskIds = const [],
     this.phone,

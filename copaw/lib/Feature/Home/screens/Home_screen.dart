@@ -2,12 +2,14 @@ import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
 import 'package:copaw/Feature/tasks/screens/tasks_screen.dart';
+import 'package:copaw/Models/user.dart';
 import 'package:copaw/feature/widgets/common/custom_bottom_nav.dart';
-import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final UserModel user;
+
+  const HomePage({super.key, required this.user});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,12 +18,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const ProjectsScreen(),
-    KanbanScreen(),
-    CalendarScreen(),
-    AiAssistantScreen(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize pages using the passed user
+    _pages = [
+      const ProjectsScreen(),
+      KanbanScreen(user: widget.user),
+      CalendarScreen(),
+      AiAssistantScreen(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

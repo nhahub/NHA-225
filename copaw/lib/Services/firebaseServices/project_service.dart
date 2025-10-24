@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:copaw/Models/project_model.dart';
+import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProjectService {
   /// 🔹 Reference to global "projects" collection
@@ -135,4 +137,6 @@ class ProjectService {
     final doc = await getProjectsCollection().doc(projectId).get();
     return doc.data();
   }
+
+   
 }

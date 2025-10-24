@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:copaw/Models/project_model.dart';
+import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
@@ -6,12 +8,14 @@ import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
 import 'package:copaw/Models/task.dart';
 import 'package:copaw/utils/app_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   final ProjectModel project;
+  final UserModel user;
 
-  const CreateTaskScreen({super.key, required this.project});
+  const CreateTaskScreen({super.key, required this.project , required this.user});
 
   @override
   State<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -40,26 +44,38 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     }
   }
 
-  void _saveTask() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_deadline == null) return;
+void _saveTask(UserModel user) async {
+  if (!_formKey.currentState!.validate()) return;
+  if (_deadline == null) return;
 
-    final newTask = Task(
-      title: _titleController.text.trim(),
-      description: _descController.text.trim(),
-      deadline: _deadline!,
-      status: _status,
-      id: DateTime.now().millisecondsSinceEpoch.toString(), // or any unique ID
-      createdAt: DateTime.now(),
-      isCompleted: _status == 'done',
-      createdBy: '',
-      projectId: widget.project.id.toString(),
-    );
+  final newTask = Task(
+    title: _titleController.text.trim(),
+    description: _descController.text.trim(),
+    deadline: _deadline!,
+    status: _status,
+    id: DateTime.now().millisecondsSinceEpoch.toString(),
+    createdAt: DateTime.now(),
+    isCompleted: _status == 'done',
+    createdBy: user.id,
+    projectId: widget.project.id.toString(),
+  );
 
-    await TaskService.addTaskToProject(newTask, widget.project);
+  // ✅ 1. Add the task to the project in Firestore
+  await TaskService.addTaskToProject(newTask, widget.project);
 
-    Navigator.pop(context);
-  }
+  // ✅ 2. Add the task ID to the user document in Firestore
+  final userRef = FirebaseFirestore.instance
+      .collection(UserModel.collectionName)
+      .doc(user.id);
+
+  await userRef.update({
+    'taskIds': FieldValue.arrayUnion([newTask.id]),
+  });
+
+  // ✅ 3. Close the screen
+  Navigator.pop(context);
+}
+
 
   @override
   void dispose() {
@@ -181,7 +197,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                     label: "Create Task",
                     icon: Icons.add,
                     inverted: true,
-                    onPressed: _saveTask,
+                    onPressed: () => _saveTask(widget.user),
                   ),
                 ),
               ],
