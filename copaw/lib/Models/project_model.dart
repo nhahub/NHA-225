@@ -81,4 +81,26 @@ class ProjectModel {
   }
 
   Map<String, dynamic> toJson() => toFirestore();
+
+  ProjectModel copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? leaderId,
+    List<UserModel>? users,
+    List<Task>? tasks,
+    Timestamp? createdAt,
+    DateTime? deadline,
+  }) {
+    return ProjectModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      leaderId: leaderId ?? this.leaderId,
+      users: users ?? List<UserModel>.from(this.users),
+      tasks: tasks ?? List<Task>.from(this.tasks),
+      createdAt: createdAt ?? this.createdAt,
+      deadline: deadline ?? this.deadline,
+    );
+  }
 }
