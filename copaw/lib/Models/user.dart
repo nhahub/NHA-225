@@ -7,7 +7,7 @@ class UserModel {
   final String name;
   final String email;
   final bool isLeader;
-  final String? projectId;
+  final List<String> projectId;
   final List<String> taskIds;
   final String? phone;
   final String? avatarUrl;
@@ -17,8 +17,8 @@ class UserModel {
     required this.name,
     required this.email,
     this.isLeader = true,
-    this.projectId,
     this.taskIds = const [],
+    this.projectId = const [],
     this.phone,
     this.avatarUrl,
   });
@@ -31,8 +31,8 @@ class UserModel {
       email: json['email'] ?? '',
       phone: json['phone'],
       isLeader: json['isLeader'] ?? false,
-      projectId: json['projectId'],
       taskIds: List<String>.from(json['taskIds'] ?? []),
+      projectId: List<String>.from(json['projectId'] ?? []),
       avatarUrl: json['avatarUrl'],
     );
   }
@@ -48,8 +48,8 @@ class UserModel {
       email: data['email'] ?? '',
       phone: data['phone'],
       isLeader: data['isLeader'] ?? false,
-      projectId: data['projectId'],
       taskIds: List<String>.from(data['taskIds'] ?? []),
+      projectId: List<String>.from(data['projectId'] ?? []),
       avatarUrl: data['avatarUrl'],
     );
   }
@@ -73,7 +73,7 @@ class UserModel {
     String? name,
     String? email,
     bool? isLeader,
-    String? projectId,
+     List<String>? projectId,
     List<String>? taskIds,
     String? phone,
     String? avatarUrl,

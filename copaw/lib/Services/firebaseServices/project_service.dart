@@ -2,10 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class ProjectService {
-  /// 🔹 Reference to global "projects" collection
+  /// 🔹 Global "projects" collection
   static CollectionReference<ProjectModel> getProjectsCollection() {
     return FirebaseFirestore.instance
         .collection(ProjectModel.collectionName)
@@ -16,7 +15,7 @@ class ProjectService {
         );
   }
 
-  /// 🔹 Reference to user's sub collection (projects of specific user)
+  /// 🔹 User's subcollection (projects of that user)
   static CollectionReference<ProjectModel> getUserProjectsCollection(String userId) {
     return AuthService.getUsersCollection()
         .doc(userId)
@@ -28,39 +27,59 @@ class ProjectService {
         );
   }
 
-  /// ✅ Create a new project:
-  /// - Save it in global projects collection
-  /// - Save it in the leader's personal sub collection only
-  static Future<void> addProjectToFirestore(ProjectModel project) async {
-    // 🟠 Create a new document ref (this gives us a non-empty unique ID)
-    final projectDocRef = getProjectsCollection().doc();
-    project.id = projectDocRef.id; // 🟠 Assign the Firestore-generated ID
+  /// 🔸 Add project ID to user's main document
+  static Future<void> addProjectIdToUser(String userId, String projectId) async {
+    final userDocRef = AuthService.getUsersCollection().doc(userId);
+    await userDocRef.update({
+      'projectId': FieldValue.arrayUnion([projectId]),
+    });
+  }
 
-    // 🔹 Get leader info
+  /// 🔸 Remove project ID from user's main document
+  static Future<void> removeProjectIdFromUser(String userId, String projectId) async {
+    final userDocRef = AuthService.getUsersCollection().doc(userId);
+    await userDocRef.update({
+      'projectId': FieldValue.arrayRemove([projectId]),
+    });
+  }
+
+  /// ✅ Create a new project:
+  /// - Add to global collection
+  /// - Add to leader's subcollection
+  /// - Add projectId to leader document
+  static Future<void> addProjectToFirestore(ProjectModel project) async {
+    // 🔹 Create project document with auto ID
+    final projectDocRef = getProjectsCollection().doc();
+    project.id = projectDocRef.id;
+
+    // 🔹 Ensure leader is included in the project users
     final leader = await AuthService.getUserById(project.leaderId!);
     if (leader != null && !project.users.any((u) => u.id == leader.id)) {
       project.users.add(leader);
     }
 
-
+    // 🔹 Save to global "projects" collection
     await projectDocRef.set(project);
 
-   
+    // 🔹 Add to leader’s "projects" subcollection
     await getUserProjectsCollection(project.leaderId!)
         .doc(project.id!)
         .set(project);
+
+    // 🔹 Add projectId to leader’s main user doc
+    await addProjectIdToUser(project.leaderId!, project.id!);
   }
 
-  /// 🔹 Update project (sync global + all users sub collections)
+  /// 🔹 Update project everywhere
   static Future<void> updateProject(ProjectModel project) async {
     if (project.id == null || project.id!.isEmpty) {
       throw Exception('Cannot update project: ID is null or empty');
     }
 
-    // Update main global project
+    // Update in global collection
     await getProjectsCollection().doc(project.id).update(project.toFirestore());
 
-    // Sync with every user that’s part of the project
+    // Sync to all users’ subcollections
     for (final user in project.users) {
       await getUserProjectsCollection(user.id!)
           .doc(project.id!)
@@ -68,7 +87,7 @@ class ProjectService {
     }
   }
 
-  /// 🔹 Delete project (remove from global + all users sub collections)
+  /// 🔹 Delete project globally + from all users
   static Future<void> deleteProject(String projectId) async {
     final doc = await getProjectsCollection().doc(projectId).get();
     final project = doc.data();
@@ -80,24 +99,21 @@ class ProjectService {
         await getUserProjectsCollection(user.id!)
             .doc(projectId)
             .delete();
+
+        await removeProjectIdFromUser(user.id!, projectId);
       }
     }
   }
 
-  /// 🔹 Add user to project by email (Leader adds member)
+  /// 🔹 Add user to project by email
   static Future<String> addUserToProjectByEmail(
       String projectId, String userEmail) async {
     final user = await AuthService.getUserByEmail(userEmail);
-    if (user == null) {
-      return 'No user found with this email.';
-    }
+    if (user == null) return 'No user found with this email.';
 
     final docRef = getProjectsCollection().doc(projectId);
     final snapshot = await docRef.get();
-
-    if (!snapshot.exists) {
-      return 'Project not found.';
-    }
+    if (!snapshot.exists) return 'Project not found.';
 
     final project = snapshot.data()!;
     final exists = project.users.any((u) => u.id == user.id);
@@ -105,13 +121,18 @@ class ProjectService {
     if (!exists) {
       project.users.add(user);
 
+      // Update in global
       await docRef.update({
         'users': project.users.map((u) => u.toJson()).toList(),
       });
 
+      // Add to user’s subcollection
       await getUserProjectsCollection(user.id!)
           .doc(projectId)
           .set(project);
+
+      // Add project ID to user doc
+      await addProjectIdToUser(user.id!, projectId);
 
       return 'User added successfully!';
     } else {
@@ -119,24 +140,22 @@ class ProjectService {
     }
   }
 
-  /// 🔹 Get all projects for a specific user
+  /// 🔹 Get all projects for user (once)
   static Future<List<ProjectModel>> getUserProjects(String userId) async {
     final querySnapshot = await getUserProjectsCollection(userId).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  /// 🔹 Listen in real-time to user's projects
+  /// 🔹 Real-time stream (for Cubit or Bloc)
   static Stream<List<ProjectModel>> listenToUserProjects(String userId) {
     return getUserProjectsCollection(userId).snapshots().map(
       (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
     );
   }
 
-  /// 🔹 Get a single project by ID
+  /// 🔹 Get project by ID
   static Future<ProjectModel?> getProjectById(String projectId) async {
     final doc = await getProjectsCollection().doc(projectId).get();
     return doc.data();
   }
-
-   
 }
