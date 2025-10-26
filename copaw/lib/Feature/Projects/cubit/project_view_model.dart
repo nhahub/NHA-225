@@ -13,8 +13,7 @@ class ProjectViewModel extends Cubit<ProjectStates> {
   ProjectViewModel() : super(ProjectInitialState());
 
   final TextEditingController projectNameController = TextEditingController();
-  final TextEditingController projectDescreptionController =
-      TextEditingController();
+  final TextEditingController projectDescreptionController = TextEditingController();
   DateTime selectedDate = DateTime.now();
 
   StreamSubscription<List<ProjectModel>>? _subscription;
@@ -53,12 +52,7 @@ class ProjectViewModel extends Cubit<ProjectStates> {
       emit(ProjectSuccessState("Project created successfully!"));
 
       // ✅ Navigate safely to home screen (passing current user)
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.home,
-        (_) => false,
-        arguments: user, // 👈 Pass the current user so HomeScreen rebuilds
-      );
+      
     } catch (e) {
       emit(ProjectErrorState("Failed to create project: $e"));
     }

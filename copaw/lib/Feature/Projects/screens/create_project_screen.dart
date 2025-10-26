@@ -3,8 +3,11 @@ import 'package:copaw/Feature/Projects/cubit/project_view_model.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
 import 'package:copaw/Feature/widgets/common/date_picker_field.dart';
+import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/utils/app_routes.dart';
 import 'package:copaw/utils/dialog_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,6 +34,18 @@ class CreateProjectScreen extends StatelessWidget {
               message: state.message,
               title: "Success",
               posActionName: "OK",
+                posAction: () async {
+                  final currentUser = FirebaseAuth.instance.currentUser;
+                  if (currentUser != null) {
+                    final userModel = await AuthService.getUserById(currentUser.uid);
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.home,
+                      (_) => false,
+                      arguments: userModel, // ✅ Pass the user here
+                    );
+                  }
+                },
               // ✅ No need to navigate manually here anymore
             );
           } else if (state is ProjectErrorState) {
