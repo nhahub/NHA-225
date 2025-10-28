@@ -23,7 +23,7 @@ class CustomCalendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state is CalendarLoadingState) {
-      return _buildSkeleton();
+      return _buildSkeleton(context);
     } else if (state is CalendarLoadedState) {
       final loadedState = state as CalendarLoadedState;
       return _buildCalendar(context, bloc, loadedState);
@@ -38,6 +38,7 @@ class CustomCalendar extends StatelessWidget {
     CalendarLoadedState state,
   ) {
     return Column(
+      
       children: [
         TableCalendar<Task>(
           firstDay: DateTime.utc(2020, 1, 1),
@@ -117,7 +118,7 @@ class CustomCalendar extends StatelessWidget {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return Container(
+        return Container(                             
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -149,14 +150,14 @@ class CustomCalendar extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeleton() {
+  Widget _buildSkeleton(BuildContext context) {
     return Skeletonizer(
       child: Column(
         children: [
           // 🔹 Month header
           Container(
             width: double.infinity,
-            height: 24,
+            height: MediaQuery.of(context).size.width * 0.1,
             margin: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
@@ -168,7 +169,7 @@ class CustomCalendar extends StatelessWidget {
           
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(7, (index) {
+            children: List.generate(6, (index) {
               return Container(
                 width: 40,
                 height: 12,
@@ -182,15 +183,15 @@ class CustomCalendar extends StatelessWidget {
           const SizedBox(height: 8),
 
           
-          ...List.generate(6, (row) {
+          ...List.generate(5, (row) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(7, (col) {
+                children: List.generate(6, (col) {
                   return Container(
-                    width: 40,
-                    height: 40,
+                    width: 35,
+                    height: 35,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(

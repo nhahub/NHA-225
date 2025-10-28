@@ -1,32 +1,37 @@
-import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
+import 'package:copaw/Feature/Tasks/screens/tasks_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
-import 'package:copaw/Feature/tasks/screens/tasks_screen.dart';
-import 'package:copaw/feature/widgets/common/custom_bottom_nav.dart';
-import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
+import 'package:copaw/Feature/Widgets/Common/custom_bottom_nav.dart';
+import 'package:copaw/Models/user.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeScreen extends StatefulWidget {
+  final UserModel user; // ✅ accept the user object
+
+  const HomeScreen({super.key, required this.user});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  late final List<Widget> _pages;
 
-  final List<Widget> _pages = [
-    const ProjectsScreen(),
-    KanbanScreen(),
-    CalendarScreen(),
-    AiAssistantScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const ProjectsScreen(),
+      KanbanScreen(user: widget.user),
+      const CalendarScreen(),
+       AiAssistantScreen(),
+    ];
+  }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
   }
 
   @override
