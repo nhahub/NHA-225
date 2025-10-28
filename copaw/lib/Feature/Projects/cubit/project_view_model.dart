@@ -7,7 +7,6 @@ import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/project_service.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/Feature/Projects/cubit/project_states.dart';
-import 'package:copaw/utils/app_routes.dart';
 
 class ProjectViewModel extends Cubit<ProjectStates> {
   ProjectViewModel() : super(ProjectInitialState());
@@ -50,9 +49,6 @@ class ProjectViewModel extends Cubit<ProjectStates> {
       await ProjectService.addProjectToFirestore(project);
 
       emit(ProjectSuccessState("Project created successfully!"));
-
-      // ✅ Navigate safely to home screen (passing current user)
-      
     } catch (e) {
       emit(ProjectErrorState("Failed to create project: $e"));
     }
@@ -67,6 +63,24 @@ class ProjectViewModel extends Cubit<ProjectStates> {
       (projects) => emit(ProjectsLoadedState(projects)),
       onError: (error) => emit(ProjectsErrorState(error.toString())),
     );
+  }
+
+  /// --- ADD MEMBER TO PROJECT ---
+  Future<void> addMemberToProject(String projectId, String memberEmail) async {
+    try {
+      emit(AddMemberLoadingState());
+
+      // ✅ Add member using ProjectService (already handles syncing)
+      final result = await ProjectService.addUserToProjectByEmail(projectId, memberEmail);
+
+      if (result.contains("successfully")) {
+        emit(AddMemberSuccessState(result));
+      } else {
+        emit(AddMemberErrorState(result));
+      }
+    } catch (e) {
+      emit(AddMemberErrorState("Failed to add member: $e"));
+    }
   }
 
   /// --- DELETE PROJECT ---

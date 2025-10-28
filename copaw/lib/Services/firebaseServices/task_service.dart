@@ -5,7 +5,7 @@ import 'package:copaw/Models/project_model.dart';
 class TaskService {
   static final _firestore = FirebaseFirestore.instance;
 
-  /// ✅ Add a new Task inside the Project document
+  /// ✅ Add a new task inside the Project document
   static Future<void> addTaskToProject(Task task, ProjectModel project) async {
     if (project.id == null || project.id!.isEmpty) {
       throw Exception("Project ID cannot be empty");
@@ -24,7 +24,7 @@ class TaskService {
       task.id = _firestore.collection('tasks').doc().id;
     }
 
-    // Append the new task
+    // Append the new task to the project's list
     final updatedTasks = [...project.tasks, task];
 
     await projectRef.update({
@@ -32,7 +32,7 @@ class TaskService {
     });
   }
 
-  /// 🔹 Update a task inside the Project document
+  /// 🔹 Update a specific task inside a project
   static Future<void> updateTask(Task task, ProjectModel project) async {
     if (project.id == null || project.id!.isEmpty) {
       throw Exception("Project ID cannot be empty");
@@ -50,7 +50,7 @@ class TaskService {
     });
   }
 
-  /// 🔹 Delete a specific task inside the Project document
+  /// 🔹 Delete a specific task inside a project
   static Future<void> deleteTask(Task task, ProjectModel project) async {
     if (project.id == null || project.id!.isEmpty) {
       throw Exception("Project ID cannot be empty");
@@ -66,7 +66,7 @@ class TaskService {
     });
   }
 
-  /// ✅ One-time fetch
+  /// ✅ Get all tasks for a given project (one-time fetch)
   static Future<List<Task>> getProjectTasks(String projectId) async {
     if (projectId.isEmpty) return [];
 
@@ -83,7 +83,7 @@ class TaskService {
     return project.tasks;
   }
 
-  /// ✅ Real-time updates
+  /// ✅ Listen to real-time updates of tasks in a project
   static Stream<List<Task>> listenToProjectTasks(String projectId) {
     if (projectId.isEmpty) {
       throw Exception("Project ID cannot be empty");
@@ -100,8 +100,8 @@ class TaskService {
         });
   }
 
-  /// ✅ All tasks created by a specific user
-  static Future<List<Task>> getTasksByUserId(String userId) async {
+  /// ✅ Get all tasks created by a specific user (used in ProfileScreen)
+  static Future<List<Task>> getUserTasks(String userId) async {
     final projectSnapshot =
         await _firestore.collection(ProjectModel.collectionName).get();
 
@@ -120,4 +120,26 @@ class TaskService {
 
     return userTasks;
   }
+
+  /// ✅ Get all tasks assigned to a specific user (not all created by them)
+static Future<List<Task>> getTasksAssignedToUser(String userId) async {
+  final projectSnapshot =
+      await _firestore.collection(ProjectModel.collectionName).get();
+
+  final userTasks = <Task>[];
+
+  for (var doc in projectSnapshot.docs) {
+    final data = doc.data();
+    if (data.isEmpty) continue;
+
+    final project = ProjectModel.fromFirestore(data);
+    final tasksForUser =
+        project.tasks.where((t) => t.assignedTo == userId).toList();
+
+    userTasks.addAll(tasksForUser);
+  }
+
+  return userTasks;
+}
+
 }

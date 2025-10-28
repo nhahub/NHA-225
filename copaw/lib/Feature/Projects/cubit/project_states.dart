@@ -6,9 +6,10 @@ abstract class ProjectStates extends Equatable {
   List<Object?> get props => [];
 }
 
+/// --- INITIAL ---
 class ProjectInitialState extends ProjectStates {}
 
-/// --- Create Project States ---
+/// --- CREATE PROJECT STATES ---
 class ProjectLoadingState extends ProjectStates {}
 
 class ProjectSuccessState extends ProjectStates {
@@ -27,7 +28,7 @@ class ProjectErrorState extends ProjectStates {
   List<Object?> get props => [error];
 }
 
-/// --- Real-Time Projects Stream States ---
+/// --- REAL-TIME PROJECTS STREAM STATES ---
 class ProjectsLoadingState extends ProjectStates {}
 
 class ProjectsLoadedState extends ProjectStates {
@@ -46,7 +47,26 @@ class ProjectsErrorState extends ProjectStates {
   List<Object?> get props => [message];
 }
 
-/// --- Date Picker State ---
+/// --- ADD MEMBER STATES ---
+class AddMemberLoadingState extends ProjectStates {}
+
+class AddMemberSuccessState extends ProjectStates {
+  final String message;
+  AddMemberSuccessState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class AddMemberErrorState extends ProjectStates {
+  final String error;
+  AddMemberErrorState(this.error);
+
+  @override
+  List<Object?> get props => [error];
+}
+
+/// --- DATE PICKER STATE ---
 class ProjectDateUpdatedState extends ProjectStates {
   final DateTime date;
   ProjectDateUpdatedState(this.date);

@@ -1,5 +1,7 @@
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
+import 'package:copaw/Services/firebaseServices/project_service.dart';
+import 'package:copaw/Services/firebaseServices/task_service.dart'; // ✅ add this
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +9,7 @@ class ProfileScreen extends StatelessWidget {
   final UserModel? user;
   const ProfileScreen({super.key, this.user});
 
-  /// 🔹 تحميل المستخدم الحالي من Firebase
+  /// 🔹 Load current user
   Future<UserModel?> _loadCurrentUser() async {
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
@@ -16,24 +18,34 @@ class ProfileScreen extends StatelessWidget {
     return null;
   }
 
+  /// 🔹 Fetch counts for projects and tasks
+  Future<Map<String, int>> _getCounts(String userId) async {
+    final projects = await ProjectService.getUserProjects(userId);
+    final tasks = await TaskService.getUserTasks(userId);
+    return {
+      'projects': projects.length,
+      'tasks': tasks.length,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<UserModel?>(
       future: user != null ? Future.value(user) : _loadCurrentUser(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+      builder: (context, userSnapshot) {
+        if (userSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        if (!snapshot.hasData) {
+        if (!userSnapshot.hasData) {
           return const Scaffold(
             body: Center(child: Text("User not found")),
           );
         }
 
-        final displayedUser = snapshot.data!;
+        final displayedUser = userSnapshot.data!;
         final currentUid = FirebaseAuth.instance.currentUser?.uid;
         final isCurrentUser = displayedUser.id == currentUid;
 
@@ -49,101 +61,115 @@ class ProfileScreen extends StatelessWidget {
             elevation: 0,
             foregroundColor: Colors.black,
           ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                // avatar section
-                Stack(
-                  alignment: Alignment.center,
+          body: FutureBuilder<Map<String, int>>(
+            future: _getCounts(displayedUser.id),
+            builder: (context, countSnapshot) {
+              if (countSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final counts = countSnapshot.data ?? {'projects': 0, 'tasks': 0};
+
+              return SingleChildScrollView(
+                child: Column(
                   children: [
-                    Container(
-                      height: 220,
-                      width: double.infinity,
-                      color: Colors.blue[100],
+                    // 🔹 Avatar section
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          height: 220,
+                          width: double.infinity,
+                          color: Colors.blue[100],
+                        ),
+                        CircleAvatar(
+                          radius: 70,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 65,
+                            backgroundImage:
+                                displayedUser.avatarUrl != null &&
+                                        displayedUser.avatarUrl!.isNotEmpty
+                                    ? NetworkImage(displayedUser.avatarUrl!)
+                                    : const AssetImage(
+                                            'assets/images/default_avatar.png')
+                                        as ImageProvider,
+                          ),
+                        ),
+                      ],
                     ),
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 65,
-                        backgroundImage: displayedUser.avatarUrl != null &&
-                                displayedUser.avatarUrl!.isNotEmpty
-                            ? NetworkImage(displayedUser.avatarUrl!)
-                            : const AssetImage('assets/images/default_avatar.png')
-                                as ImageProvider,
+
+                    const SizedBox(height: 16),
+
+                    // 🔹 User name + email
+                    Text(
+                      displayedUser.name,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
-                ),
+                    Text(
+                      displayedUser.email,
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
 
-                const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
-                // user name + email
-                Text(
-                  displayedUser.name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  displayedUser.email,
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
+                    // 🔹 Additional info
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        children: [
+                          _buildInfoTile(Icons.phone, 'Phone',
+                              displayedUser.phone ?? 'N/A'),
+                          const Divider(),
+                          _buildInfoTile(Icons.task_alt, 'Tasks',
+                              '${counts['tasks']} assigned'),
+                          const Divider(),
+                          _buildInfoTile(Icons.work_outline, 'Projects',
+                              '${counts['projects']} joined'),
+                        ],
+                      ),
+                    ),
 
-                const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
-                // additional info
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    children: [
-                      _buildInfoTile(
-                          Icons.phone, 'Phone', displayedUser.phone ?? 'N/A'),
-                      const Divider(),
-                      _buildInfoTile(Icons.task_alt, 'Tasks',
-                          '${displayedUser.taskIds.length} assigned'),
-                      const Divider(),
-                      _buildInfoTile(Icons.work_outline, 'Projects',
-                          '${displayedUser.projectId.length} joined'),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // if this is not the current user, show contact button
-                if (!isCurrentUser)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // مثال فقط: يمكنك إضافة صفحة محادثة هنا
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Start chat with ${displayedUser.name}')),
-                        );
-                      },
-                      icon: const Icon(Icons.chat),
-                      label: const Text('Contact User'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    // 🔹 Contact button
+                    if (!isCurrentUser)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            // Example: Replace with chat page later
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Start chat with ${displayedUser.name}')),
+                            );
+                          },
+                          icon: const Icon(Icons.chat),
+                          label: const Text('Contact User'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         );
       },
     );
   }
 
-  /// 🔹 items display
+  /// 🔹 Info list tile
   Widget _buildInfoTile(IconData icon, String title, String value) {
     return ListTile(
       leading: Icon(icon, color: Colors.blueAccent),

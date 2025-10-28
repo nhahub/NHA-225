@@ -1,3 +1,4 @@
+import 'package:copaw/Feature/Projects/screens/add_member_screen.dart';
 import 'package:copaw/Feature/tasks/screens/create_task_screen.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/utils/app_colors.dart';
@@ -107,7 +108,16 @@ class ProjectDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildMembersSection(BuildContext context, ProjectModel project) {
-    return Customcontainer(
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AddMemberScreen(projectId: project.id!),
+        ),
+      );
+    },
+    child: Customcontainer(
       Width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,10 +136,24 @@ class ProjectDetailsScreen extends StatelessWidget {
               );
             }).toList(),
           ),
+          const SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add, size: 18, color: Colors.blueAccent),
+              SizedBox(width: 4),
+              Text(
+                "Tap to add more members",
+                style: TextStyle(color: Colors.blueAccent),
+              ),
+            ],
+          ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildTasksSection(
     List<Task> todo,

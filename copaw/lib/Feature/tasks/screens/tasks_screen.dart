@@ -23,7 +23,7 @@ class KanbanScreen extends StatelessWidget {
       appBar: appBar1,
     
       body: FutureBuilder<List<Task>>(
-        future: TaskService.getTasksByUserId(user.id), // ✅ Fetch tasks for this user
+        future: TaskService.getTasksAssignedToUser(user.id), // ✅ Fetch tasks for this user
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
