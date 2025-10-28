@@ -5,6 +5,7 @@ import 'package:copaw/Feature/Home/screens/home_screen.dart';
 import 'package:copaw/Feature/Projects/cubit/project_view_model.dart';
 import 'package:copaw/Feature/Projects/screens/create_project_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
+import 'package:copaw/Feature/profile/profile_screen.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/provider/user_cubit.dart';
@@ -46,16 +47,19 @@ class Copaw extends StatelessWidget {
           case AppRoutes.login:
             return MaterialPageRoute(builder: (_) => LoginScreen());
           case AppRoutes.createProject:
-            return MaterialPageRoute(builder: (_) => const CreateProjectScreen());
+            return MaterialPageRoute(
+              builder: (_) => const CreateProjectScreen(),
+            );
           case AppRoutes.calender:
             return MaterialPageRoute(builder: (_) => const CalendarScreen());
           case AppRoutes.Aichat:
             return MaterialPageRoute(builder: (_) => AiAssistantScreen());
           case AppRoutes.home:
             final user = settings.arguments as UserModel?;
-            return MaterialPageRoute(
-              builder: (_) => HomeScreen(user: user!),
-            );
+            return MaterialPageRoute(builder: (_) => HomeScreen(user: user!));
+          case AppRoutes.profile:
+            final user = settings.arguments as UserModel?;
+            return MaterialPageRoute(builder: (_) => ProfileScreen(user: user!));
           default:
             return MaterialPageRoute(
               builder: (_) => const Scaffold(
