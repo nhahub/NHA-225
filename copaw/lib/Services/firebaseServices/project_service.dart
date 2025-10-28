@@ -105,40 +105,50 @@ class ProjectService {
     }
   }
 
-  /// 🔹 Add user to project by email
+    /// 🔹 Add user to a project by email (and sync across all project members)
   static Future<String> addUserToProjectByEmail(
       String projectId, String userEmail) async {
+    // 1️⃣ Get the user by email
     final user = await AuthService.getUserByEmail(userEmail);
     if (user == null) return 'No user found with this email.';
 
+    // 2️⃣ Get the project document
     final docRef = getProjectsCollection().doc(projectId);
     final snapshot = await docRef.get();
     if (!snapshot.exists) return 'Project not found.';
 
     final project = snapshot.data()!;
+    if (project.users == null) project.users = [];
+
+    // 3️⃣ Check if the user is already part of the project
     final exists = project.users.any((u) => u.id == user.id);
+    if (exists) return 'User already in project.';
 
-    if (!exists) {
-      project.users.add(user);
+    // 4️⃣ Add the new user to the project
+    project.users.add(user);
 
-      // Update in global
-      await docRef.update({
-        'users': project.users.map((u) => u.toJson()).toList(),
-      });
+    // 5️⃣ Update the project in the global "projects" collection
+    await docRef.update({
+      'users': project.users.map((u) => u.toJson()).toList(),
+    });
 
-      // Add to user’s subcollection
-      await getUserProjectsCollection(user.id!)
+    // 6️⃣ Add the project to the new user's personal "projects" subcollection
+    await getUserProjectsCollection(user.id!).doc(projectId).set(project);
+
+    // 7️⃣ Add the project ID to the new user's main document
+    await addProjectIdToUser(user.id!, projectId);
+
+    // 8️⃣ Sync the updated project data to all existing members’ subcollections
+    for (final existingUser in project.users) {
+      await getUserProjectsCollection(existingUser.id!)
           .doc(projectId)
           .set(project);
-
-      // Add project ID to user doc
-      await addProjectIdToUser(user.id!, projectId);
-
-      return 'User added successfully!';
-    } else {
-      return 'User already in project.';
     }
+
+    return 'User added successfully!';
   }
+
+
 
   /// 🔹 Get all projects for user (once)
   static Future<List<ProjectModel>> getUserProjects(String userId) async {

@@ -69,4 +69,6 @@ static Future<UserModel?> getUserByEmail(String email) async {
     // Sign in with Firebase
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
+
+  
 }

@@ -1,3 +1,4 @@
+import 'package:copaw/Feature/Projects/screens/add_member_screen.dart';
 import 'package:copaw/Feature/tasks/screens/create_task_screen.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/utils/app_colors.dart';
@@ -14,7 +15,11 @@ class ProjectDetailsScreen extends StatelessWidget {
   final ProjectModel project;
   final UserModel user;
 
-  const ProjectDetailsScreen({super.key, required this.project , required this.user});
+  const ProjectDetailsScreen({
+    super.key,
+    required this.project,
+    required this.user,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +28,17 @@ class ProjectDetailsScreen extends StatelessWidget {
       child: BlocBuilder<ProjectDetailsCubit, ProjectDetailsState>(
         builder: (context, state) {
           final project = state.project;
-          final todoTasks = project.tasks.where((t) => t.status == 'todo');
-          final doingTasks = project.tasks.where((t) => t.status == 'doing');
-          final doneTasks = project.tasks.where((t) => t.status == 'done');
-          
+
+          final todoTasks = project.tasks.where((t) => t.status == 'todo').toList();
+          final doingTasks = project.tasks.where((t) => t.status == 'doing').toList();
+          final doneTasks = project.tasks.where((t) => t.status == 'done').toList();
+
           return Scaffold(
             appBar: AppBar(
               backgroundColor: AppColors.mainColor,
               elevation: 0,
               title: Text(
-                project.name.toString(),
+                project.name ?? 'Project',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -54,9 +60,10 @@ class ProjectDetailsScreen extends StatelessWidget {
                     _buildMembersSection(context, project),
                     const SizedBox(height: 16),
                     _buildTasksSection(
-                      todoTasks.toList(),
-                      doingTasks.toList(),
-                      doneTasks.toList(),
+                      todoTasks,
+                      doingTasks,
+                      doneTasks,
+                      project.users, // ✅ pass actual project users
                     ),
                   ],
                 ),
@@ -73,7 +80,10 @@ class ProjectDetailsScreen extends StatelessWidget {
                   final newTask = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CreateTaskScreen(project: project , user: user),
+                      builder: (_) => CreateTaskScreen(
+                        project: project,
+                        user: user,
+                      ),
                     ),
                   );
 
@@ -89,6 +99,9 @@ class ProjectDetailsScreen extends StatelessWidget {
     );
   }
 
+  // ============================
+  // Project Info Section
+  // ============================
   Widget _buildProjectInfo(BuildContext context, ProjectModel project) {
     return Customcontainer(
       Width: double.infinity,
@@ -100,59 +113,95 @@ class ProjectDetailsScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          Text(project.description.toString()),
+          Text(project.description ?? 'No description provided.'),
         ],
       ),
     );
   }
 
+  // ============================
+  // Members Section
+  // ============================
   Widget _buildMembersSection(BuildContext context, ProjectModel project) {
-    return Customcontainer(
-      Width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Team Members",
-            style: TextStyle(fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AddMemberScreen(projectId: project.id!),
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            children: project.users.map((member) {
-              return CircleAvatar(
-                backgroundImage: NetworkImage(member.avatarUrl ?? ''),
-                radius: 20,
-              );
-            }).toList(),
-          ),
-        ],
+        );
+      },
+      child: Customcontainer(
+        Width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Team Members",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              children: project.users.map((member) {
+                return CircleAvatar(
+                  backgroundImage: NetworkImage(member.avatarUrl ?? ''),
+                  radius: 20,
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 10),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add, size: 18, color: Colors.blueAccent),
+                SizedBox(width: 4),
+                Text(
+                  "Tap to add more members",
+                  style: TextStyle(color: Colors.blueAccent),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  // ============================
+  // Tasks Section
+  // ============================
   Widget _buildTasksSection(
     List<Task> todo,
     List<Task> doing,
     List<Task> done,
+    List<UserModel> projectUsers,
   ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildColumn("To Do", todo),
+          _buildTaskColumn("To Do", todo, projectUsers),
           const SizedBox(width: 12),
-          buildColumn("Doing", doing),
+          _buildTaskColumn("Doing", doing, projectUsers),
           const SizedBox(width: 12),
-          buildColumn("Done", done),
+          _buildTaskColumn("Done", done, projectUsers),
         ],
       ),
     );
   }
 
-  Widget buildColumn(String title, List<Task> taskList) {
-    return Container(
+  // ============================
+  // Single Task Column
+  // ============================
+  Widget _buildTaskColumn(
+    String title,
+    List<Task> taskList,
+    List<UserModel> projectUsers,
+  ) {
+    return SizedBox(
       width: 300,
       child: Customcontainer(
         Width: double.infinity,
@@ -166,9 +215,12 @@ class ProjectDetailsScreen extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            ...taskList
-                .map((task) => TaskItem(task: task, projectUsers: []))
-                .toList(),
+            ...taskList.map(
+              (task) => TaskItem(
+                task: task,
+                projectUsers: projectUsers, // ✅ show assigned users properly
+              ),
+            ),
           ],
         ),
       ),

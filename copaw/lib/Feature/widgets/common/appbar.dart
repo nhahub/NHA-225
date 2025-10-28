@@ -1,3 +1,7 @@
+import 'package:copaw/Models/user.dart';
+import 'package:copaw/Services/firebaseServices/auth_service.dart';
+import 'package:copaw/utils/app_routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -6,6 +10,14 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const MyCustomAppBar({Key? key, required this.head, required this.img})
       : super(key: key);
+
+  Future<UserModel?> _fetchCurrentUser() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      return await AuthService.getUserById(firebaseUser.uid);
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +29,7 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         color: Color.fromARGB(255, 245, 245, 245),
         border: Border(
           bottom: BorderSide(
-            color: Colors.grey, 
+            color: Colors.grey,
             width: 1.0,
           ),
         ),
@@ -26,7 +38,7 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         height: kToolbarHeight,
         child: Stack(
           children: [
-            // Center Title
+            // ✅ Center Title
             Center(
               child: Text(
                 head,
@@ -38,7 +50,7 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
 
-            // Right side (notification + avatar)
+            // ✅ Right side (notification + avatar)
             Align(
               alignment: Alignment.centerRight,
               child: Row(
@@ -52,14 +64,36 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     onPressed: () {},
                   ),
                   const SizedBox(width: 8), // spacing
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundImage: img != null && img!.isNotEmpty
-                        ? AssetImage(img!)
-                        : const AssetImage('assets/NULLP.webp'),
-                    onBackgroundImageError: (exception, stackTrace) {
-                      debugPrint('Image not found, using fallback.');
+                  InkWell(
+                    onTap: () async {
+                      // ✅ Get user data from Firebase
+                      final user = await _fetchCurrentUser();
+
+                      if (user != null) {
+                        // ✅ Navigate and pass user data
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.profile,
+                          arguments: user,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('User data not found.'),
+                          ),
+                        );
+                      }
                     },
+                    child: CircleAvatar(
+                      radius: 24,
+                      backgroundImage: img != null && img!.isNotEmpty
+                          ? NetworkImage(img!)
+                          : const AssetImage('assets/NULLP.webp')
+                              as ImageProvider,
+                      onBackgroundImageError: (exception, stackTrace) {
+                        debugPrint('Image not found, using fallback.');
+                      },
+                    ),
                   ),
                 ],
               ),
