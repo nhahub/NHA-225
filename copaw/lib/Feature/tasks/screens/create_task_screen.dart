@@ -1,21 +1,24 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:copaw/Feature/tasks/bloc/create_task_cubit.dart';
+import 'package:copaw/Feature/tasks/bloc/create_task_state.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Models/user.dart';
-import 'package:copaw/Services/firebaseServices/task_service.dart';
-import 'package:copaw/utils/app_colors.dart';
-import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
+import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/utils/app_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   final ProjectModel project;
   final UserModel user;
 
-  const CreateTaskScreen({super.key, required this.project , required this.user});
+  const CreateTaskScreen({
+    super.key,
+    required this.project,
+    required this.user,
+  });
 
   @override
   State<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -23,187 +26,180 @@ class CreateTaskScreen extends StatefulWidget {
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   DateTime? _deadline;
   String _status = 'todo';
+  String? _selectedUserId;
 
-  /// Pick date function
-  void _pickDate() async {
-    final DateTime now = DateTime.now();
-    final DateTime? picked = await showDatePicker(
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
       context: context,
       initialDate: now,
       firstDate: now,
       lastDate: DateTime(now.year + 5),
     );
-
-    if (picked != null) {
-      setState(() => _deadline = picked);
-    }
-  }
-
-void _saveTask(UserModel user) async {
-  if (!_formKey.currentState!.validate()) return;
-  if (_deadline == null) return;
-
-  final newTask = Task(
-    title: _titleController.text.trim(),
-    description: _descController.text.trim(),
-    deadline: _deadline!,
-    status: _status,
-    id: DateTime.now().millisecondsSinceEpoch.toString(),
-    createdAt: DateTime.now(),
-    isCompleted: _status == 'done',
-    createdBy: user.id,
-    projectId: widget.project.id.toString(),
-  );
-
-  // ✅ 1. Add the task to the project in Firestore
-  await TaskService.addTaskToProject(newTask, widget.project);
-
-  // ✅ 2. Add the task ID to the user document in Firestore
-  final userRef = FirebaseFirestore.instance
-      .collection(UserModel.collectionName)
-      .doc(user.id);
-
-  await userRef.update({
-    'taskIds': FieldValue.arrayUnion([newTask.id]),
-  });
-
-  // ✅ 3. Close the screen
-  Navigator.pop(context);
-}
-
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descController.dispose();
-    super.dispose();
+    if (picked != null) setState(() => _deadline = picked);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Create Task"),
-        backgroundColor: AppColors.mainColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Customcontainer(
-          Width: double.infinity,
-          Height: null,
-          margin: EdgeInsets.zero,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 🟩 Title
-                const Text(
-                  "Title",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                CustomTextFormField(
-                  controller: _titleController,
-                  hintText: "Enter task title",
-                  validator: (text) =>
-                      AppValidators.nameValidator(text, context),
-                ),
-                const SizedBox(height: 16),
+    final projectUsers = widget.project.users;
 
-                // 🟦 Description
-                const Text(
-                  "Description",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                CustomTextFormField(
-                  controller: _descController,
-                  hintText: "Enter task description",
-                  maxLines: 3,
-                  validator: (text) {
-                    if (text == null || text.trim().isEmpty) {
-                      return "Please enter a description";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+    return BlocProvider(
+      create: (_) => CreateTaskCubit(),
+      child: BlocConsumer<CreateTaskCubit, CreateTaskState>(
+        listener: (context, state) {
+          if (state is CreateTaskSuccess) {
+            Navigator.pop(context, state.task);
+          } else if (state is CreateTaskError) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        builder: (context, state) {
+          final cubit = context.read<CreateTaskCubit>();
 
-                const Text(
-                  "Deadline",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: _pickDate,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 15,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.grayColor),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _deadline != null
-                              ? "${_deadline!.day}/${_deadline!.month}/${_deadline!.year}"
-                              : "Select a date",
-                          style: const TextStyle(color: Colors.black54),
-                        ),
-                        const Icon(Icons.calendar_today, color: Colors.grey),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 🟧 Status
-                const Text(
-                  "Status",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<String>(
-                  value: _status,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'todo', child: Text("To Do")),
-                    DropdownMenuItem(value: 'doing', child: Text("Doing")),
-                    DropdownMenuItem(value: 'done', child: Text("Done")),
-                  ],
-                  onChanged: (value) => setState(() => _status = value!),
-                ),
-                const SizedBox(height: 24),
-
-                // 🟦 Button
-                Center(
-                  child: CustomButton(
-                    label: "Create Task",
-                    icon: Icons.add,
-                    inverted: true,
-                    onPressed: () => _saveTask(widget.user),
-                  ),
-                ),
-              ],
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text("Create Task"),
+              backgroundColor: AppColors.mainColor,
+              foregroundColor: Colors.white,
+              elevation: 0,
             ),
-          ),
-        ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Customcontainer(
+                Width: double.infinity,
+                Height: null,
+                margin: EdgeInsets.zero,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      const Text("Title", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      CustomTextFormField(
+                        controller: _titleController,
+                        hintText: "Enter task title",
+                        validator: (text) => AppValidators.nameValidator(text, context),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Description
+                      const Text("Description", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      CustomTextFormField(
+                        controller: _descController,
+                        hintText: "Enter task description",
+                        maxLines: 3,
+                        validator: (text) =>
+                            (text == null || text.trim().isEmpty)
+                                ? "Please enter a description"
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Deadline picker
+                      const Text("Deadline", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: _pickDate,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.grayColor),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _deadline != null
+                                    ? "${_deadline!.day}/${_deadline!.month}/${_deadline!.year}"
+                                    : "Select a date",
+                                style: const TextStyle(color: Colors.black54),
+                              ),
+                              const Icon(Icons.calendar_today, color: Colors.grey),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Status
+                      const Text("Status", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      DropdownButtonFormField<String>(
+                        value: _status,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'todo', child: Text("To Do")),
+                          DropdownMenuItem(value: 'doing', child: Text("Doing")),
+                          DropdownMenuItem(value: 'done', child: Text("Done")),
+                        ],
+                        onChanged: (value) => setState(() => _status = value!),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Assign To
+                      const Text("Assign To", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      DropdownButtonFormField<String>(
+                        value: _selectedUserId,
+                        hint: const Text("Select member"),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        items: projectUsers.map((user) {
+                          return DropdownMenuItem(
+                            value: user.id,
+                            child: Text(user.name),
+                          );
+                        }).toList(),
+                        onChanged: (value) => setState(() => _selectedUserId = value),
+                      ),
+                      const SizedBox(height: 24),
+
+                      Center(
+                        child: state is CreateTaskLoading
+                            ? const CircularProgressIndicator()
+                            : CustomButton(
+                                label: "Create Task",
+                                icon: Icons.add,
+                                inverted: true,
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate() &&
+                                      _deadline != null) {
+                                    cubit.createTask(
+                                      project: widget.project,
+                                      user: widget.user,
+                                      title: _titleController.text,
+                                      description: _descController.text,
+                                      deadline: _deadline!,
+                                      status: _status,
+                                      assignedUserId: _selectedUserId,
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Please complete all fields")),
+                                    );
+                                  }
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

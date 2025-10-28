@@ -1,7 +1,8 @@
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/Services/firebaseServices/project_service.dart';
-import 'package:copaw/Services/firebaseServices/task_service.dart'; // ✅ add this
+import 'package:copaw/Services/firebaseServices/task_service.dart';
+import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +10,6 @@ class ProfileScreen extends StatelessWidget {
   final UserModel? user;
   const ProfileScreen({super.key, this.user});
 
-  /// 🔹 Load current user
   Future<UserModel?> _loadCurrentUser() async {
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
@@ -18,7 +18,6 @@ class ProfileScreen extends StatelessWidget {
     return null;
   }
 
-  /// 🔹 Fetch counts for projects and tasks
   Future<Map<String, int>> _getCounts(String userId) async {
     final projects = await ProjectService.getUserProjects(userId);
     final tasks = await TaskService.getUserTasks(userId);
@@ -26,6 +25,22 @@ class ProfileScreen extends StatelessWidget {
       'projects': projects.length,
       'tasks': tasks.length,
     };
+  }
+
+  /// 🔹 Logout logic (Firebase only)
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Logout failed: $e")));
+    }
   }
 
   @override
@@ -73,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    // 🔹 Avatar section
+                    // Avatar section
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -87,13 +102,12 @@ class ProfileScreen extends StatelessWidget {
                           backgroundColor: Colors.white,
                           child: CircleAvatar(
                             radius: 65,
-                            backgroundImage:
-                                displayedUser.avatarUrl != null &&
-                                        displayedUser.avatarUrl!.isNotEmpty
-                                    ? NetworkImage(displayedUser.avatarUrl!)
-                                    : const AssetImage(
-                                            'assets/images/default_avatar.png')
-                                        as ImageProvider,
+                            backgroundImage: displayedUser.avatarUrl != null &&
+                                    displayedUser.avatarUrl!.isNotEmpty
+                                ? NetworkImage(displayedUser.avatarUrl!)
+                                : const AssetImage(
+                                        'assets/images/default_avatar.png')
+                                    as ImageProvider,
                           ),
                         ),
                       ],
@@ -101,7 +115,7 @@ class ProfileScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // 🔹 User name + email
+                    // Name & Email
                     Text(
                       displayedUser.name,
                       style: const TextStyle(
@@ -116,7 +130,7 @@ class ProfileScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    // 🔹 Additional info
+                    // Info tiles
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Column(
@@ -135,30 +149,49 @@ class ProfileScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // 🔹 Contact button
-                    if (!isCurrentUser)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // Example: Replace with chat page later
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Start chat with ${displayedUser.name}')),
-                            );
-                          },
-                          icon: const Icon(Icons.chat),
-                          label: const Text('Contact User'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            minimumSize: const Size(double.infinity, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                    // Buttons
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        children: [
+                          if (!isCurrentUser)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'Start chat with ${displayedUser.name}'),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.chat),
+                              label: const Text('Contact User'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                minimumSize: const Size(double.infinity, 48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+
+                          // Logout button for current user
+                          if (isCurrentUser)
+                            ElevatedButton.icon(
+                              onPressed: () => _logout(context),
+                              icon: const Icon(Icons.logout),
+                              label: const Text('Logout'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                minimumSize: const Size(double.infinity, 48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
+                    ),
                   ],
                 ),
               );
@@ -169,7 +202,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// 🔹 Info list tile
   Widget _buildInfoTile(IconData icon, String title, String value) {
     return ListTile(
       leading: Icon(icon, color: Colors.blueAccent),
