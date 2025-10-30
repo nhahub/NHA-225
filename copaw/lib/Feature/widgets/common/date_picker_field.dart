@@ -2,18 +2,15 @@ import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-/// A reusable date picker field widget
-/// Displays a label, the selected date, and a calendar icon.
-/// Opens a date picker when tapped.
 class DatePickerField extends StatefulWidget {
   final String label;
-  final String dateText;
-  final ValueChanged<String> onDateSelected; // callback to send picked date back
+  final DateTime? selectedDate;
+  final ValueChanged<DateTime> onDateSelected;
 
   const DatePickerField({
     super.key,
     required this.label,
-    required this.dateText,
+    required this.selectedDate,
     required this.onDateSelected,
   });
 
@@ -25,15 +22,13 @@ class _DatePickerFieldState extends State<DatePickerField> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), // current date
-      firstDate: DateTime.now(), // can't pick past date
+      initialDate: widget.selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
 
     if (pickedDate != null) {
-      // Format date to readable text
-      final formattedDate = DateFormat('MMM dd, yyyy').format(pickedDate);
-      widget.onDateSelected(formattedDate);
+      widget.onDateSelected(pickedDate);
     }
   }
 
@@ -41,6 +36,10 @@ class _DatePickerFieldState extends State<DatePickerField> {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+
+    final displayText = widget.selectedDate != null
+        ? DateFormat('yyyy-MM-dd').format(widget.selectedDate!)
+        : "Select Date";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,8 +65,11 @@ class _DatePickerFieldState extends State<DatePickerField> {
                 const Icon(Icons.calendar_today, color: AppColors.textColor),
                 SizedBox(width: width * 0.03),
                 Text(
-                  widget.dateText,
-                  style: const TextStyle(fontSize: 14, color: AppColors.textColor),
+                  displayText,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textColor,
+                  ),
                 ),
               ],
             ),

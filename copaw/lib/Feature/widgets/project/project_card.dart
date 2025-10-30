@@ -6,7 +6,8 @@ class ProjectCard extends StatefulWidget {
   final int totalTasks;
   final int completedTasks;
   final DateTime deadline;
-  final List<String> members; // List of member image URLs or asset paths
+  final List<String> members;
+  final VoidCallback? onDelete; // ✅ new optional callback
 
   const ProjectCard({
     super.key,
@@ -15,6 +16,7 @@ class ProjectCard extends StatefulWidget {
     required this.completedTasks,
     required this.deadline,
     required this.members,
+    this.onDelete, // ✅ optional delete handler
   });
 
   @override
@@ -46,18 +48,50 @@ class _ProjectCardState extends State<ProjectCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Project Title
-            Text(
-              widget.title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.mainColor,
-              ),
+            /// ✅ Title row with delete icon
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.mainColor,
+                  ),
+                ),
+                if (widget.onDelete != null)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text("Delete Project"),
+                          content: const Text(
+                              "Are you sure you want to delete this project?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text("Delete",
+                                  style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) widget.onDelete!();
+                    },
+                  ),
+              ],
             ),
             const SizedBox(height: 10),
 
-            /// Progress Bar with %
+            /// Progress Bar
             Row(
               children: [
                 const Text("Progress: "),
@@ -93,21 +127,17 @@ class _ProjectCardState extends State<ProjectCard> {
                 ),
               ],
             ),
-
             const SizedBox(height: 12),
             const Divider(),
 
-            /// Members avatars
+            /// Members
             Row(
               children: widget.members.asMap().entries.map((entry) {
                 int index = entry.key;
                 String member = entry.value;
 
                 return Transform.translate(
-                  offset: Offset(
-                    -index * 12,
-                    0,
-                  ), // move left by 12 pixels per index
+                  offset: Offset(-index * 12, 0),
                   child: Container(
                     width: 40,
                     height: 40,
@@ -116,11 +146,9 @@ class _ProjectCardState extends State<ProjectCard> {
                       border: Border.all(
                         color: AppColors.whiteColor,
                         width: 2,
-                      ), // white border
+                      ),
                       image: DecorationImage(
-                        image: AssetImage(
-                          member,
-                        ), // replace with NetworkImage(member)
+                        image: AssetImage(member),
                         fit: BoxFit.cover,
                       ),
                     ),

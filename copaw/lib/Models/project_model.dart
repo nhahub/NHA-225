@@ -1,65 +1,106 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:copaw/Models/user.dart';
+import 'package:copaw/Models/task.dart';
 
 class ProjectModel {
-  // Firestore collection name
-  static const String collectionName = 'projects';
+  static const String collectionName = "projects";
 
-  // Attributes
-  String id;
-  String name;
-  DateTime deadline;
-  String? leaderId; // team leader ID (user who created the project)
+  String? id;
+  String? name;
+  String? description;
+  DateTime? deadline;
+  String? leaderId;
   List<UserModel> users;
-  List<String> todoTasks;
-  List<String> doingTasks;
-  List<String> doneTasks;
-  
-  int get totalTasks => todoTasks.length + doingTasks.length + doneTasks.length;
+  List<Task> tasks;
+  Timestamp? createdAt;
 
-  // Constructor
   ProjectModel({
-    this.id = "",
-    required this.name,
-    required this.deadline,
+    this.id,
+    this.name,
+    this.description,
     this.leaderId,
     List<UserModel>? users,
-    List<String>? todoTasks,
-    List<String>? doingTasks,
-    List<String>? doneTasks,
-  }) : users = users ?? [], // mutable list
-       todoTasks = todoTasks ?? [],
-       doingTasks = doingTasks ?? [],
-       doneTasks = doneTasks ?? [];
+    List<Task>? tasks,
+    this.createdAt,
+    this.deadline,
+  }) : users = users ?? [],
+       tasks = tasks ?? [];
 
-  // Convert object → Firestore JSON
+  /// ✅ Convert Firestore data → ProjectModel
+  factory ProjectModel.fromFirestore(Map<String, dynamic> data) {
+    DateTime? _convertToDate(dynamic value) {
+      if (value == null) return null;
+      if (value is Timestamp) return value.toDate();
+      if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+      if (value is DateTime) return value;
+      return null;
+    }
+
+    return ProjectModel(
+      id: data['id'],
+      name: data['name'],
+      description: data['description'],
+      leaderId: data['leaderId'],
+
+      users:
+          (data['users'] as List<dynamic>?)
+              ?.map((u) => UserModel.fromJson(u))
+              .toList() ??
+          [],
+
+      tasks:
+          (data['tasks'] as List<dynamic>?)
+              ?.map((t) => Task.fromJson(t))
+              .toList() ??
+          [],
+
+      createdAt: data['createdAt'] is Timestamp
+          ? data['createdAt']
+          : (data['createdAt'] != null
+                ? Timestamp.fromMillisecondsSinceEpoch(data['createdAt'])
+                : null),
+
+      deadline: _convertToDate(data['deadline']),
+    );
+  }
+
+  /// ✅ Convert ProjectModel → Firestore Map
   Map<String, dynamic> toFirestore() {
     return {
       'id': id,
       'name': name,
-      'leader_id': leaderId,
-      'deadline': deadline.millisecondsSinceEpoch,
+      'description': description,
+      'leaderId': leaderId,
       'users': users.map((u) => u.toJson()).toList(),
-      'todo_tasks': todoTasks,
-      'doing_tasks': doingTasks,
-      'done_tasks': doneTasks,
+      'tasks': tasks.map((t) => t.toJson()).toList(),
+      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
+      'deadline': deadline != null
+          ? Timestamp.fromDate(deadline!)
+          : FieldValue.serverTimestamp(),
     };
   }
 
-  // Convert Firestore JSON → object
-  factory ProjectModel.fromFirestore(Map<String, dynamic> data) {
+  Map<String, dynamic> toJson() => toFirestore();
+
+  ProjectModel copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? leaderId,
+    List<UserModel>? users,
+    List<Task>? tasks,
+    Timestamp? createdAt,
+    DateTime? deadline,
+  }) {
     return ProjectModel(
-      id: data['id'] ?? '',
-      name: data['name'] ?? '',
-      leaderId: data['leader_id'] ?? '',
-      deadline: DateTime.fromMillisecondsSinceEpoch(data['deadline'] ?? 0),
-      users:
-          (data['users'] as List<dynamic>?)
-              ?.map((u) => UserModel.fromJson(u as Map<String, dynamic>))
-              .toList() ??
-          [],
-      todoTasks: List<String>.from(data['todo_tasks'] ?? []),
-      doingTasks: List<String>.from(data['doing_tasks'] ?? []),
-      doneTasks: List<String>.from(data['done_tasks'] ?? []),
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      leaderId: leaderId ?? this.leaderId,
+      users: users ?? List<UserModel>.from(this.users),
+      tasks: tasks ?? List<Task>.from(this.tasks),
+      createdAt: createdAt ?? this.createdAt,
+      deadline: deadline ?? this.deadline,
     );
   }
 }

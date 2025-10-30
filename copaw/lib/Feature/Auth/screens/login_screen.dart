@@ -1,8 +1,10 @@
 import 'package:copaw/Feature/Auth/cubit/auth_states.dart';
 import 'package:copaw/Feature/Auth/cubit/auth_view_model.dart';
 import 'package:copaw/Feature/Auth/screens/register_screen.dart';
+import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
+import 'package:copaw/provider/user_cubit.dart';
 import 'package:copaw/utils/app_routes.dart';
 import 'package:copaw/utils/app_validator.dart';
 import 'package:copaw/utils/dialog_utils.dart';
@@ -36,11 +38,18 @@ class _LoginScreenState extends State<LoginScreen> {
             message: state.successMessage ?? "Registration successful",
             title: "Success",
             posActionName: "OK",
-            posAction: () => Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.home,
-              (_) => false,
-            ),
+            posAction: () {
+              final currentUser = context.read<UserCubit>().state;
+              if (currentUser != null) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => HomeScreen(user: currentUser),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
           );
         } else if (state is AuthErrorState) {
           DialogUtils.hideLoading(context: context);
@@ -109,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   CustomTextFormField(
                     controller: authViewModel.passwordController,
                     hintText: "Enter password",
-                    obscureText: false,
+                    obscureText: true,
                     validator: (value) =>
                         AppValidators.passwordValidator(value, context),
                   ),
@@ -158,7 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         backgroundColor: Colors.white,
                       ),
-                      onPressed: () async => authViewModel.loginWithGoogle(context),
+                      onPressed: () async =>
+                          authViewModel.loginWithGoogle(context),
                     ),
                   ),
 

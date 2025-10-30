@@ -21,7 +21,7 @@ class _ProjectlistState extends State<Projectlist> {
   @override
   Widget build(BuildContext context) {
     return Customcontainer(
-      Height: 150,
+      Height:MediaQuery.of(context).size.width * 0.5,
       Width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
