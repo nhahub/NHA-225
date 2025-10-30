@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:copaw/Models/task.dart';
 
+/// Base class for all calendar states
 abstract class CalendarState extends Equatable {
   const CalendarState();
 
@@ -8,10 +9,10 @@ abstract class CalendarState extends Equatable {
   List<Object?> get props => [];
 }
 
-
+/// 🔹 State while loading or waiting for stream
 class CalendarLoadingState extends CalendarState {}
 
-
+/// 🔹 State when tasks are successfully loaded
 class CalendarLoadedState extends CalendarState {
   final Map<DateTime, List<Task>> tasksByDate;
   final DateTime focusedDay;
@@ -37,4 +38,13 @@ class CalendarLoadedState extends CalendarState {
 
   @override
   List<Object?> get props => [tasksByDate, focusedDay, selectedDay];
+}
+
+/// 🔹 State when an error occurs (stream or Firestore)
+class CalendarErrorState extends CalendarState {
+  final String message;
+  const CalendarErrorState(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

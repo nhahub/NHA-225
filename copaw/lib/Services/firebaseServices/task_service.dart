@@ -168,21 +168,35 @@ class TaskService {
   }
 
 
-  /// 🔹 Listen to tasks assigned to a specific user (real-time)
-  static Future<List<Task>> getTasksForUserByIds(UserModel user) async {
-  if (user.taskIds.isEmpty) return [];
-
-  final allProjectsSnapshot = await _firestore.collection(ProjectModel.collectionName).get();
-
-  final tasks = <Task>[];
-
-  for (var doc in allProjectsSnapshot.docs) {
-    final project = ProjectModel.fromFirestore(doc.data());
-    // Take only tasks that are in user.taskIds
-    final userTasks = project.tasks.where((t) => user.taskIds.contains(t.id)).toList();
-    tasks.addAll(userTasks);
+ /// 🔹 Listen to tasks assigned to a specific user (real-time)
+/// 🔹 Listen to tasks assigned to a specific user (real-time)
+static Stream<List<Task>> listenToTasksForUser(UserModel user) {
+  if (user.taskIds.isEmpty) {
+    // Return an empty stream if the user has no tasks
+    return Stream.value([]);
   }
 
-  return tasks;
+  // Listen to changes in all projects
+  return _firestore
+      .collection(ProjectModel.collectionName)
+      .snapshots()
+      .map((snapshot) {
+        final tasks = <Task>[];
+
+        for (var doc in snapshot.docs) {
+          final project = ProjectModel.fromFirestore(doc.data());
+
+          // Filter only the user's tasks by their IDs
+          final userTasks = project.tasks
+              .where((t) => user.taskIds.contains(t.id))
+              .toList();
+
+          tasks.addAll(userTasks);
+        }
+
+        return tasks;
+      });
 }
+
+
 }

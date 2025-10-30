@@ -41,17 +41,18 @@ class Copaw extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primaryColor: AppColors.mainColor),
-      home: const AuthGate(),
+      home:  const AuthGate(),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case AppRoutes.login:
-            return MaterialPageRoute(builder: (_) => LoginScreen());
+           return MaterialPageRoute(builder: (_) => LoginScreen());
           case AppRoutes.createProject:
             return MaterialPageRoute(
               builder: (_) => const CreateProjectScreen(),
             );
           case AppRoutes.calender:
-            return MaterialPageRoute(builder: (_) => const CalendarScreen());
+            final user = settings.arguments as UserModel?;
+            return MaterialPageRoute(builder: (_) =>  CalendarScreen(user: user!));
           case AppRoutes.Aichat:
             return MaterialPageRoute(builder: (_) => AiAssistantScreen());
           case AppRoutes.home:

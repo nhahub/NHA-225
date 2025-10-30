@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:copaw/Models/task.dart';
@@ -6,12 +7,11 @@ import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_bloc.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_event.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomCalendar extends StatelessWidget {
   final CalendarBloc bloc;
   final CalendarState state;
-  final List<Task> Function(DateTime, Map<DateTime, List<Task>>) getTasksForDay;
+  final List<Task> Function(DateTime) getTasksForDay;
 
   const CustomCalendar({
     super.key,
@@ -22,30 +22,41 @@ class CustomCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (state is CalendarLoadingState) {
-      return _buildSkeleton(context);
-    } else if (state is CalendarLoadedState) {
-      final loadedState = state as CalendarLoadedState;
-      return _buildCalendar(context, bloc, loadedState);
-    } else {
-      return const Center(child: Text("Unexpected state"));
-    }
+    // 🔹 Stream updates are handled by BlocBuilder -> CalendarLoadedState updates automatically
+    return BlocBuilder<CalendarBloc, CalendarState>(
+      builder: (context, state) {
+        if (state is CalendarLoadingState) {
+          return _buildSkeleton(context);
+        } else if (state is CalendarLoadedState) {
+          return _buildCalendar(context, bloc, state);
+        } else if (state is CalendarErrorState) {
+          return Center(
+            child: Text(
+              "Error: ${state.message}",
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        } else {
+          return const Center(child: Text("No tasks available"));
+        }
+      },
+    );
   }
 
+  /// Build the actual calendar
   Widget _buildCalendar(
     BuildContext context,
     CalendarBloc bloc,
     CalendarLoadedState state,
   ) {
     return Column(
-      
       children: [
         TableCalendar<Task>(
           firstDay: DateTime.utc(2020, 1, 1),
           lastDay: DateTime.utc(2030, 12, 31),
           focusedDay: state.focusedDay,
           selectedDayPredicate: (day) => isSameDay(state.selectedDay, day),
-          eventLoader: (day) => getTasksForDay(day, state.tasksByDate),
+          eventLoader: (day) => getTasksForDay(day),
           startingDayOfWeek: StartingDayOfWeek.monday,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
@@ -55,14 +66,10 @@ class CustomCalendar extends StatelessWidget {
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
-            leftChevronIcon: Icon(
-              Icons.chevron_left,
-              color: AppColors.mainColor,
-            ),
-            rightChevronIcon: Icon(
-              Icons.chevron_right,
-              color: AppColors.mainColor,
-            ),
+            leftChevronIcon:
+                Icon(Icons.chevron_left, color: AppColors.mainColor),
+            rightChevronIcon:
+                Icon(Icons.chevron_right, color: AppColors.mainColor),
           ),
           calendarStyle: CalendarStyle(
             todayDecoration: BoxDecoration(
@@ -96,14 +103,13 @@ class CustomCalendar extends StatelessWidget {
                     ),
                   ),
                 )
-              : _buildTaskList(
-                  getTasksForDay(state.selectedDay!, state.tasksByDate),
-                ),
+              : _buildTaskList(getTasksForDay(state.selectedDay!)),
         ),
       ],
     );
   }
 
+  /// Build list of tasks under the calendar
   Widget _buildTaskList(List<Task> tasks) {
     if (tasks.isEmpty) {
       return Center(
@@ -118,7 +124,7 @@ class CustomCalendar extends StatelessWidget {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return Container(                             
+        return Container(
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -150,11 +156,11 @@ class CustomCalendar extends StatelessWidget {
     );
   }
 
+  /// Build skeleton loader while tasks are loading
   Widget _buildSkeleton(BuildContext context) {
     return Skeletonizer(
       child: Column(
         children: [
-          // 🔹 Month header
           Container(
             width: double.infinity,
             height: MediaQuery.of(context).size.width * 0.1,
@@ -165,8 +171,6 @@ class CustomCalendar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-
-          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(6, (index) {
@@ -181,8 +185,6 @@ class CustomCalendar extends StatelessWidget {
             }),
           ),
           const SizedBox(height: 8),
-
-          
           ...List.generate(5, (row) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -194,9 +196,7 @@ class CustomCalendar extends StatelessWidget {
                     height: 35,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(
-                        20,
-                      ), // circle like days
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   );
                 }),

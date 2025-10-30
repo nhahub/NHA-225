@@ -1,60 +1,46 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:copaw/Models/task.dart';
+import 'package:copaw/Models/user.dart';
+import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'calendar_event.dart';
 import 'calendar_state.dart';
-import 'package:copaw/Models/task.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
-  CalendarBloc() : super(CalendarLoadingState()) {
+  final UserModel user;
+  StreamSubscription<List<Task>>? _tasksSubscription;
+
+  CalendarBloc(this.user) : super(CalendarLoadingState()) {
     on<LoadCalendarTasks>(_onLoadTasks);
     on<SelectDay>(_onSelectDay);
+    on<TasksUpdated>(_onTasksUpdated);
   }
 
-  static final Map<DateTime, List<Task>> _mockTasks = {
-    DateTime.utc(2025, 10, 11): [
-      Task(
-        id: "123",
-        title: 'Fix login bug',
-        description: 'Resolve the issue preventing user login.',
-        deadline: DateTime.utc(2025, 10, 11),
-        projectId: 'proj_001',
-        createdBy: 'user_001',
-        assignedTo: ['user_002'],
-        isCompleted: true, status: '', createdAt: DateTime.now(),
-      ),
-      Task(
-        id: '1233',
-        title: 'Update dashboard UI',
-        description: 'Redesign the dashboard widgets and color scheme.',
-        deadline: DateTime.utc(2025, 10, 11),
-        projectId: 'proj_002',
-        createdBy: 'user_001',
-        assignedTo: ['user_003'],
-        isCompleted: false, status: '', createdAt: DateTime.now(),
-      ),
-    ],
-    DateTime.utc(2025, 10, 14): [
-      Task(
-        id: '555',
-        title: 'Project A review',
-        description: 'Final review meeting for Project A.',
-        deadline: DateTime.utc(2025, 10, 14),
-        projectId: 'proj_001',
-        createdBy: 'user_001',
-        assignedTo: ['user_004'],
-        isCompleted: false, status: '', createdAt: DateTime.now(),
-      ),
-    ],
-  };
-
-  void _onLoadTasks(LoadCalendarTasks event, Emitter<CalendarState> emit) async {
+  /// 🔹 Start Firestore stream listener for user's tasks
+  void _onLoadTasks(LoadCalendarTasks event, Emitter<CalendarState> emit) {
     emit(CalendarLoadingState());
-    await Future.delayed(const Duration(seconds: 2)); 
+    _tasksSubscription?.cancel();
+
+    _tasksSubscription = TaskService.listenToTasksForUser(user).listen(
+      (tasks) {
+        add(TasksUpdated(tasks));
+      },
+      onError: (error) {
+        emit(CalendarErrorState(error.toString()));
+      },
+    );
+  }
+
+  /// 🔹 When Firestore stream sends new task data
+  void _onTasksUpdated(TasksUpdated event, Emitter<CalendarState> emit) {
+    final tasksByDate = _groupTasksByDate(event.tasks);
     emit(CalendarLoadedState(
-      tasksByDate: _mockTasks,
+      tasksByDate: tasksByDate,
       focusedDay: DateTime.now(),
     ));
   }
 
+  /// 🔹 When user selects a specific date
   void _onSelectDay(SelectDay event, Emitter<CalendarState> emit) {
     if (state is CalendarLoadedState) {
       final current = state as CalendarLoadedState;
@@ -63,5 +49,33 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         focusedDay: event.selectedDay,
       ));
     }
+  }
+
+  /// 🔹 Group tasks by deadline day
+  Map<DateTime, List<Task>> _groupTasksByDate(List<Task> tasks) {
+    final Map<DateTime, List<Task>> grouped = {};
+
+    for (final task in tasks) {
+      DateTime? deadline;
+      if (task.deadline is DateTime) {
+        deadline = task.deadline;
+      } else if (task.deadline != null) {
+        deadline = (task.deadline as dynamic).toDate();
+      }
+
+      if (deadline != null) {
+        final key = DateTime(deadline.year, deadline.month, deadline.day);
+        grouped.putIfAbsent(key, () => []);
+        grouped[key]!.add(task);
+      }
+    }
+
+    return grouped;
+  }
+
+  @override
+  Future<void> close() {
+    _tasksSubscription?.cancel();
+    return super.close();
   }
 }

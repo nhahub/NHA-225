@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:copaw/Feature/widgets/common/appbar.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Feature/widgets/task/task_item.dart';
@@ -8,51 +9,52 @@ import 'package:flutter/material.dart';
 
 class KanbanScreen extends StatelessWidget {
   final UserModel user; // 🔹 Current logged-in user
+  final MyCustomAppBar appBar1 = MyCustomAppBar(head: 'My Tasks', img: null);
 
   KanbanScreen({super.key, required this.user});
-
-  final MyCustomAppBar appBar1 = MyCustomAppBar(head: 'My Tasks', img: null);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar1,
-      body: FutureBuilder<List<Task>>(
-  future: TaskService.getTasksForUserByIds(user), // ✅ Fetch tasks by user's taskIds
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-      return const Center(child: Text("No tasks found for this user"));
-    }
-
-    final tasks = snapshot.data!;
-    final todoTasks = tasks.where((t) => t.status == "todo").toList();
-    final doingTasks = tasks.where((t) => t.status == "doing").toList();
-    final doneTasks = tasks.where((t) => t.status == "done").toList();
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildColumn("To Do", todoTasks),
-          const SizedBox(width: 12),
-          _buildColumn("Doing", doingTasks),
-          const SizedBox(width: 12),
-          _buildColumn("Done", doneTasks),
-        ],
+      body: SingleChildScrollView(
+        child: StreamBuilder<List<Task>>( // ✅ Correct widget for listening to a stream
+          stream: TaskService.listenToTasksForUser(user), // ✅ Stream, not future
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+        
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text("No tasks found for this user"));
+            }
+        
+            final tasks = snapshot.data!;
+            final todoTasks = tasks.where((t) => t.status == "todo").toList();
+            final doingTasks = tasks.where((t) => t.status == "doing").toList();
+            final doneTasks = tasks.where((t) => t.status == "done").toList();
+        
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildColumn("To Do", todoTasks),
+                  const SizedBox(width: 12),
+                  _buildColumn("Doing", doingTasks),
+                  const SizedBox(width: 12),
+                  _buildColumn("Done", doneTasks),
+                ],
+              ),
+            );
+          },
+        ),
       ),
-    );
-  },
-),
-
     );
   }
 
+  /// 🔹 Helper method to build each Kanban column
   Widget _buildColumn(String title, List<Task> taskList) {
     return Container(
       width: 320,
@@ -81,14 +83,12 @@ class KanbanScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.grey),
                 ),
               ),
-            ...taskList
-                .map(
-                  (task) => TaskItem(
-                    task: task,
-                    projectUsers: [], // Add collaborators if needed
-                  ),
-                )
-                .toList(),
+            ...taskList.map(
+              (task) => TaskItem(
+                task: task,
+                projectUsers: const [], // Add collaborators if needed
+              ),
+            ),
             const SizedBox(height: 16),
           ],
         ),
