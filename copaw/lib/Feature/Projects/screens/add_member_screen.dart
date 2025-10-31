@@ -6,6 +6,9 @@ import 'package:copaw/Services/firebaseServices/project_service.dart';
 import 'package:copaw/Feature/Profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:copaw/Feature/widgets/common/custom_button.dart';
+import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
+import 'package:copaw/utils/app_colors.dart';
 
 class AddMemberScreen extends StatefulWidget {
   final String projectId;
@@ -63,8 +66,8 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Project Members"),
-            backgroundColor: Colors.blueAccent,
+            title: const Text("Project Members",style: TextStyle(color: AppColors.whiteColor),),
+            backgroundColor: AppColors.mainColor,
           ),
           body: _loadingMembers
               ? const Center(child: CircularProgressIndicator())
@@ -84,8 +87,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                         const SizedBox(height: 12),
 
                         /// --- MEMBERS LIST ---
-                        if (_project?.users != null &&
-                            _project!.users.isNotEmpty)
+                        if (_project?.users != null && _project!.users.isNotEmpty)
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -93,21 +95,20 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                             itemBuilder: (context, index) {
                               final user = _project!.users[index];
                               final bool isLeader =
-                                  _project!.leaderId == user.id; // ✅ Leader check
+                                  _project!.leaderId == user.id;
 
-                              return Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                              return Customcontainer(
+                                Width: double.infinity,
+                                Height: 70,
+                                margin: const EdgeInsets.only(bottom: 10),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundImage:
-                                        user.avatarUrl != null &&
-                                                user.avatarUrl!.isNotEmpty
-                                            ? NetworkImage(user.avatarUrl!)
-                                            : const AssetImage(
-                                                'assets/images/default_avatar.png',
-                                              ) as ImageProvider,
+                                    backgroundImage: user.avatarUrl != null &&
+                                            user.avatarUrl!.isNotEmpty
+                                        ? NetworkImage(user.avatarUrl!)
+                                        : const AssetImage(
+                                            'assets/images/default_avatar.png',
+                                          ) as ImageProvider,
                                   ),
                                   title: Row(
                                     children: [
@@ -118,16 +119,16 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: Colors.orange.shade100,
+                                            color: AppColors.lightGrayColor,
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                                color: Colors.orangeAccent),
+                                                color: AppColors.orangeDark),
                                           ),
                                           child: const Text(
                                             "Leader",
                                             style: TextStyle(
-                                              color: Colors.orange,
+                                              color: AppColors.orangeDark,
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -156,7 +157,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                           ),
 
                         const SizedBox(height: 30),
-
                         const Divider(),
                         const SizedBox(height: 12),
 
@@ -166,29 +166,35 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                           style: TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 12),
-                        TextField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: "User Email",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                        Customcontainer(
+                          Width: double.infinity,
+                          Height: 60,
+                          child: TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: "User Email",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
+                            keyboardType: TextInputType.emailAddress,
                           ),
-                          keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 20),
                         state is AddMemberLoadingState
                             ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton.icon(
+                            : CustomButton(
+                                label: "Add Member",
+                                icon: Icons.person_add_alt_1,
+                                inverted: true,
                                 onPressed: () {
                                   final email = _emailController.text.trim();
                                   if (email.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text(
-                                          "Please enter a valid email.",
-                                        ),
-                                        backgroundColor: Colors.orange,
+                                        content:
+                                            Text("Please enter a valid email."),
+                                        backgroundColor: AppColors.orangeDark,
                                       ),
                                     );
                                     return;
@@ -198,12 +204,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                                     email,
                                   );
                                 },
-                                icon: const Icon(Icons.person_add_alt_1),
-                                label: const Text("Add Member"),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
-                                  minimumSize: const Size(double.infinity, 50),
-                                ),
                               ),
                       ],
                     ),

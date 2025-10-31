@@ -9,5 +9,7 @@ class AppColors {
   static const Color lightGrayColor = Color(0xFFE0E0E0);
   static const Color transparentColor = Colors.transparent;
   static const Color blackColor = Color(0xFF000000);
+  static const Color orangeLight = Color(0xFFFFF3E0);
+  static const Color orangeDark = Color(0xFFFFA726);
 }
 

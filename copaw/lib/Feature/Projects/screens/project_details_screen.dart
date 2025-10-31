@@ -1,15 +1,17 @@
-import 'package:copaw/Feature/Projects/screens/add_member_screen.dart';
-import 'package:copaw/Feature/tasks/screens/create_task_screen.dart';
-import 'package:copaw/Models/user.dart';
-import 'package:copaw/utils/app_colors.dart';
+import 'package:copaw/Feature/tasks/screens/edittask.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Models/task.dart';
+import 'package:copaw/Models/user.dart';
 import 'package:copaw/Feature/widgets/task/task_item.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Feature/Projects/cubit/project_detail_cubit.dart';
+import 'package:copaw/Services/firebaseServices/task_service.dart';
+import 'package:copaw/Feature/tasks/screens/create_task_screen.dart';
+import 'package:copaw/Feature/Projects/screens/add_member_screen.dart';
+import 'package:copaw/utils/app_colors.dart';
 
 class ProjectDetailsScreen extends StatelessWidget {
   final ProjectModel project;
@@ -29,9 +31,12 @@ class ProjectDetailsScreen extends StatelessWidget {
         builder: (context, state) {
           final project = state.project;
 
-          final todoTasks = project.tasks.where((t) => t.status == 'todo').toList();
-          final doingTasks = project.tasks.where((t) => t.status == 'doing').toList();
-          final doneTasks = project.tasks.where((t) => t.status == 'done').toList();
+          final todoTasks =
+              project.tasks.where((t) => t.status == 'todo').toList();
+          final doingTasks =
+              project.tasks.where((t) => t.status == 'doing').toList();
+          final doneTasks =
+              project.tasks.where((t) => t.status == 'done').toList();
 
           return Scaffold(
             appBar: AppBar(
@@ -59,18 +64,15 @@ class ProjectDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildMembersSection(context, project),
                     const SizedBox(height: 16),
-                    _buildTasksSection(
-                      todoTasks,
-                      doingTasks,
-                      doneTasks,
-                      project.users, // ✅ pass actual project users
-                    ),
+                    _buildTasksSection(context, todoTasks, doingTasks,
+                        doneTasks, project.users),
                   ],
                 ),
               ),
             ),
             bottomNavigationBar: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               child: CustomButton(
                 width: double.infinity,
                 label: "Add Task",
@@ -80,10 +82,8 @@ class ProjectDetailsScreen extends StatelessWidget {
                   final newTask = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CreateTaskScreen(
-                        project: project,
-                        user: user,
-                      ),
+                      builder: (_) =>
+                          CreateTaskScreen(project: project, user: user),
                     ),
                   );
 
@@ -99,19 +99,14 @@ class ProjectDetailsScreen extends StatelessWidget {
     );
   }
 
-  // ============================
-  // Project Info Section
-  // ============================
   Widget _buildProjectInfo(BuildContext context, ProjectModel project) {
     return Customcontainer(
       Width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Project Description",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text("Project Description",
+              style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(project.description ?? 'No description provided.'),
         ],
@@ -119,9 +114,6 @@ class ProjectDetailsScreen extends StatelessWidget {
     );
   }
 
-  // ============================
-  // Members Section
-  // ============================
   Widget _buildMembersSection(BuildContext context, ProjectModel project) {
     return GestureDetector(
       onTap: () {
@@ -137,19 +129,18 @@ class ProjectDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Team Members",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text("Team Members",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             Wrap(
               spacing: 10,
-              children: project.users.map((member) {
-                return CircleAvatar(
-                  backgroundImage: NetworkImage(member.avatarUrl ?? ''),
-                  radius: 20,
-                );
-              }).toList(),
+              children: project.users
+                  .map((member) => CircleAvatar(
+                        backgroundImage:
+                            NetworkImage(member.avatarUrl ?? ''),
+                        radius: 20,
+                      ))
+                  .toList(),
             ),
             const SizedBox(height: 10),
             const Row(
@@ -157,10 +148,8 @@ class ProjectDetailsScreen extends StatelessWidget {
               children: [
                 Icon(Icons.add, size: 18, color: Colors.blueAccent),
                 SizedBox(width: 4),
-                Text(
-                  "Tap to add more members",
-                  style: TextStyle(color: Colors.blueAccent),
-                ),
+                Text("Tap to add more members",
+                    style: TextStyle(color: Colors.blueAccent)),
               ],
             ),
           ],
@@ -169,38 +158,27 @@ class ProjectDetailsScreen extends StatelessWidget {
     );
   }
 
-  // ============================
-  // Tasks Section
-  // ============================
-  Widget _buildTasksSection(
-    List<Task> todo,
-    List<Task> doing,
-    List<Task> done,
-    List<UserModel> projectUsers,
-  ) {
+  Widget _buildTasksSection(BuildContext context, List<Task> todo,
+      List<Task> doing, List<Task> done, List<UserModel> projectUsers) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTaskColumn("To Do", todo, projectUsers),
+          _buildTaskColumn(context, "To Do", todo, projectUsers),
           const SizedBox(width: 12),
-          _buildTaskColumn("Doing", doing, projectUsers),
+          _buildTaskColumn(context, "Doing", doing, projectUsers),
           const SizedBox(width: 12),
-          _buildTaskColumn("Done", done, projectUsers),
+          _buildTaskColumn(context, "Done", done, projectUsers),
         ],
       ),
     );
   }
 
-  // ============================
-  // Single Task Column
-  // ============================
-  Widget _buildTaskColumn(
-    String title,
-    List<Task> taskList,
-    List<UserModel> projectUsers,
-  ) {
+  Widget _buildTaskColumn(BuildContext context, String title,
+      List<Task> taskList, List<UserModel> projectUsers) {
+    final cubit = context.read<ProjectDetailsCubit>();
+
     return SizedBox(
       width: 300,
       child: Customcontainer(
@@ -210,17 +188,70 @@ class ProjectDetailsScreen extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
-            ...taskList.map(
-              (task) => TaskItem(
-                task: task,
-                projectUsers: projectUsers, // ✅ show assigned users properly
-              ),
-            ),
+            ...taskList.map((task) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Stack(
+                  children: [
+                    TaskItem(task: task, projectUsers: projectUsers),
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: PopupMenuButton<String>(
+                        onSelected: (value) async {
+                          if (value == 'edit') {
+                            final editedTask = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EditTaskScreen(
+                                  project: cubit.state.project,
+                                  user: cubit.state.project.users.first, 
+                                  task: task, // pass current task for editing
+                                ),
+                              ),
+                            );
+
+                            if (editedTask != null && context.mounted) {
+                              await cubit.editTask(editedTask);
+                            }
+                          } else if (value == 'delete') {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Delete Task?'),
+                                content:
+                                    const Text('Are you sure you want to delete this task?'),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('Cancel')),
+                                  TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text('Delete')),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              await TaskService.deleteTask(task.id, cubit.state.project);
+                              await cubit.retrieveTasks();
+                            }
+                          }
+                        },
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(value: 'edit', child: Text('Edit')),
+                          PopupMenuItem(value: 'delete', child: Text('Delete')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
           ],
         ),
       ),

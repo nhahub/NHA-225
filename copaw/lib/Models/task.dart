@@ -2,15 +2,15 @@
 
 class Task {
    String id;
-  final String title;
-  final String description;
-  final List<String> assignedTo; 
-  final String status;
-  final DateTime? deadline;
-  final DateTime createdAt;
-  final String projectId;
-  final bool isCompleted;
-  final String createdBy;
+   String title;
+   String description;
+   List<String> assignedTo; 
+   String status;
+   DateTime? deadline;
+   DateTime createdAt;
+   String projectId;
+   bool isCompleted;
+   String createdBy;
 
   Task({
     required this.id,

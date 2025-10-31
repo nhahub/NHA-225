@@ -10,21 +10,24 @@ part 'project_details_state.dart';
 class ProjectDetailsCubit extends Cubit<ProjectDetailsState> {
   ProjectDetailsCubit(this.project)
       : super(ProjectDetailsState(project: project)) {
-    _subscribeToTasks(); // 👈 Automatically start listening on creation
+    _subscribeToTasks(); // listen to tasks on creation
   }
 
   final ProjectModel project;
   StreamSubscription<List<Task>>? _taskSubscription;
 
-  /// ✅ Add a new task to Firestore
+  /// Add a new task
   Future<void> addTask(Task task) async {
-    if (project.id == null || project.id!.isEmpty) {
-      throw Exception("Cannot add task — project ID is missing.");
-    }
     await TaskService.addTaskToProject(task, project);
   }
 
-  /// ✅ Real-time listener for project tasks
+  /// Edit an existing task
+  Future<void> editTask(Task task) async {
+    await TaskService.updateTask(task, project); // replaces old task
+    await retrieveTasks(); // refresh stream
+  }
+
+  /// Listen to project tasks in real-time
   void _subscribeToTasks() {
     if (project.id == null || project.id!.isEmpty) return;
 
@@ -38,7 +41,7 @@ class ProjectDetailsCubit extends Cubit<ProjectDetailsState> {
     );
   }
 
-  /// ✅ Optionally allow manual restart of stream
+  /// Restart the task stream
   Future<void> retrieveTasks() async {
     _taskSubscription?.cancel();
     _subscribeToTasks();
