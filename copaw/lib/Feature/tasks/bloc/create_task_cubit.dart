@@ -9,7 +9,6 @@ import 'create_task_state.dart';
 class CreateTaskCubit extends Cubit<CreateTaskState> {
   CreateTaskCubit() : super(CreateTaskInitial());
 
-  /// 🔹 Create a new task and sync it with the project and users
   Future<void> createTask({
     required ProjectModel project,
     required UserModel user,
@@ -20,7 +19,6 @@ class CreateTaskCubit extends Cubit<CreateTaskState> {
     String? assignedUserId,
   }) async {
     emit(CreateTaskLoading());
-
     try {
       final List<String> assignedUsers =
           assignedUserId != null ? <String>[assignedUserId] : <String>[];
@@ -38,10 +36,8 @@ class CreateTaskCubit extends Cubit<CreateTaskState> {
         createdBy: user.id,
       );
 
-      // Save to Firestore under the project’s tasks subcollection
       await TaskService.addTaskToProject(newTask, project);
 
-      // If assigned to someone, update their record
       if (assignedUserId != null) {
         final userRef = FirebaseFirestore.instance
             .collection(UserModel.collectionName)
@@ -57,17 +53,14 @@ class CreateTaskCubit extends Cubit<CreateTaskState> {
     }
   }
 
-  /// 🔹 Real-time stream for tasks under a project
-  Stream<List<Task>> streamTasksForProject(String projectId) {
-    return FirebaseFirestore.instance
-        .collection(ProjectModel.collectionName)
-        .doc(projectId)
-        .collection('tasks')
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => Task.fromFirestore(doc.data(), doc.id))
-          .toList();
-    });
+  /// 🔹 Fetch user’s tasks (once)
+  Future<void> loadUserTasks(UserModel user) async {
+    emit(CreateTaskLoading());
+    try {
+      final tasks = await TaskService.getUserTasks(user.id);
+      emit(CreateTaskSuccessList(tasks));
+    } catch (e) {
+      emit(CreateTaskError(e.toString()));
+    }
   }
 }

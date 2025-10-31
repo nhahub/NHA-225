@@ -25,3 +25,11 @@ class CreateTaskError extends CreateTaskState {
   @override
   List<Object?> get props => [message];
 }
+
+class CreateTaskSuccessList extends CreateTaskState {
+  final List<Task> tasks;
+  CreateTaskSuccessList(this.tasks);
+
+  @override
+  List<Object?> get props => [tasks];
+}

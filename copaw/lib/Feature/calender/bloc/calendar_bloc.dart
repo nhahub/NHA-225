@@ -21,7 +21,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     emit(CalendarLoadingState());
     _tasksSubscription?.cancel();
 
-    _tasksSubscription = TaskService.listenToTasksForUser(user).listen(
+    _tasksSubscription = TaskService.listenToUserTasks(user).listen(
       (tasks) {
         add(TasksUpdated(tasks));
       },
