@@ -3,6 +3,7 @@ import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/Services/firebaseServices/project_service.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
+import 'package:copaw/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -179,10 +180,10 @@ class ProfileScreen extends StatelessWidget {
                           if (isCurrentUser)
                             ElevatedButton.icon(
                               onPressed: () => _logout(context),
-                              icon: const Icon(Icons.logout),
-                              label: const Text('Logout'),
+                              icon: const Icon(Icons.logout,color: AppColors.whiteColor,),
+                              label: const Text('Logout',style: TextStyle(color: AppColors.whiteColor),),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent,
+                                backgroundColor: AppColors.orangeDark,
                                 minimumSize: const Size(double.infinity, 48),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
