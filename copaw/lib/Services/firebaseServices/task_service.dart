@@ -141,36 +141,4 @@ class TaskService {
     }
   }
 
-  static Future<List<Task>> getTasksForUserByIds(UserModel user) async {
-    if (user.taskIds.isEmpty) return [];
-    final allProjectsSnapshot = await _firestore
-        .collection(ProjectModel.collectionName)
-        .get();
-    final tasks = <Task>[];
-    for (var doc in allProjectsSnapshot.docs) {
-      final project = ProjectModel.fromFirestore(doc.data());
-      final userTasks = project.tasks
-          .where((t) => user.taskIds.contains(t.id))
-          .toList();
-      tasks.addAll(userTasks);
-    }
-    return tasks;
-  }
-
-  /// 🔥 NEW — Stream real-time user tasks
-  static Stream<List<Task>> listenToUserTasks(UserModel user) {
-    return _firestore.collection(ProjectModel.collectionName).snapshots().map((
-      snapshot,
-    ) {
-      final tasks = <Task>[];
-      for (var doc in snapshot.docs) {
-        final project = ProjectModel.fromFirestore(doc.data());
-        final userTasks = project.tasks
-            .where((t) => user.taskIds.contains(t.id))
-            .toList();
-        tasks.addAll(userTasks);
-      }
-      return tasks;
-    });
-  }
 }

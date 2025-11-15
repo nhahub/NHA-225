@@ -17,19 +17,25 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   /// 🔹 Start Firestore stream listener for user's tasks
-  void _onLoadTasks(LoadCalendarTasks event, Emitter<CalendarState> emit) {
-    emit(CalendarLoadingState());
-    _tasksSubscription?.cancel();
+  /// 🔹 Load tasks for a user using getTasksForUserByIds (one-time fetch)
+Future<void> _onLoadTasks(
+    LoadCalendarTasks event, Emitter<CalendarState> emit) async {
+  emit(CalendarLoadingState());
 
-    _tasksSubscription = TaskService.listenToUserTasks(user).listen(
-      (tasks) {
-        add(TasksUpdated(tasks));
-      },
-      onError: (error) {
-        emit(CalendarErrorState(error.toString()));
-      },
-    );
+  try {
+    // Use the new getUserTasks function
+    final tasks = await TaskService.getUserTasks(user.id);
+    final tasksByDate = _groupTasksByDate(tasks);
+
+    emit(CalendarLoadedState(
+      tasksByDate: tasksByDate,
+      focusedDay: DateTime.now(),
+    ));
+  } catch (error) {
+    emit(CalendarErrorState(error.toString()));
   }
+}
+
 
   /// 🔹 When Firestore stream sends new task data
   void _onTasksUpdated(TasksUpdated event, Emitter<CalendarState> emit) {
