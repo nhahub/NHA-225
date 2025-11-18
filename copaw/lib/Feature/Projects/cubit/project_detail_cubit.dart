@@ -23,7 +23,7 @@ class ProjectDetailsCubit extends Cubit<ProjectDetailsState> {
 
   /// Edit an existing task
   Future<void> editTask(Task task) async {
-    await TaskService.updateTask(task, project); // replaces old task
+    await TaskService.updateTask(task, project.id.toString()); // replaces old task
     await retrieveTasks(); // refresh stream
   }
 

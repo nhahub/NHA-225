@@ -50,15 +50,18 @@ class KanbanScreen extends StatelessWidget {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.all(12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildColumn("To Do", todoTasks),
-                        const SizedBox(width: 12),
-                        _buildColumn("Doing", doingTasks),
-                        const SizedBox(width: 12),
-                        _buildColumn("Done", doneTasks),
-                      ],
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildColumn("To Do", todoTasks),
+                          const SizedBox(width: 12),
+                          _buildColumn("Doing", doingTasks),
+                          const SizedBox(width: 12),
+                          _buildColumn("Done", doneTasks),
+                        ],
+                      ),
                     ),
                   );
                 }
