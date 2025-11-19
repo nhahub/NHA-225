@@ -13,27 +13,86 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: AppColors.whiteColor,
-      selectedItemColor: AppColors.mainColor,
-      unselectedItemColor: AppColors.textColor.withOpacity(0.6),
-      currentIndex: currentIndex,
-      onTap: onTap,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.folder_open),
-          label: 'Projects',
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: const LinearGradient(
+            colors: [AppColors.secondery, AppColors.mainColor],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 24,
+              offset: const Offset(0, 14),
+              spreadRadius: -10,
+            ),
+          ],
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.view_kanban), label: 'Kanban'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month_outlined),
-          label: 'calender',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            selectedItemColor: AppColors.whiteColor,
+            unselectedItemColor: Colors.white.withOpacity(0.6),
+            currentIndex: currentIndex,
+            onTap: onTap,
+            showUnselectedLabels: false,
+            selectedLabelStyle: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.1,
+            ),
+            items: const [
+              BottomNavigationBarItem(
+                icon: _CenteredIcon(Icons.folder_open_outlined),
+                activeIcon: _CenteredIcon(Icons.folder),
+                label: 'Projects',
+              ),
+              BottomNavigationBarItem(
+                icon: _CenteredIcon(Icons.view_kanban_outlined),
+                activeIcon: _CenteredIcon(Icons.view_kanban),
+                label: 'Kanban',
+              ),
+              BottomNavigationBarItem(
+                icon: _CenteredIcon(Icons.calendar_month_outlined),
+                activeIcon: _CenteredIcon(Icons.calendar_month),
+                label: 'Calendar',
+              ),
+              BottomNavigationBarItem(
+                icon: _CenteredIcon(Icons.smart_toy_outlined),
+                activeIcon: _CenteredIcon(Icons.smart_toy),
+                label: 'AI',
+              ),
+            ],
+          ),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.smart_toy_outlined),
-          label: 'AI Assistant',
-        ),
-      ],
+      ),
+    );
+  }
+}
+
+class _CenteredIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _CenteredIcon(this.icon);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 40,
+      child: Align(alignment: Alignment.center, child: Icon(icon)),
     );
   }
 }

@@ -9,21 +9,16 @@ part 'project_details_state.dart';
 
 class ProjectDetailsCubit extends Cubit<ProjectDetailsState> {
   ProjectDetailsCubit(this.project)
-      : super(ProjectDetailsState(project: project)) {
+    : super(ProjectDetailsState(project: project)) {
     _subscribeToTasks(); // listen to tasks on creation
   }
 
   final ProjectModel project;
   StreamSubscription<List<Task>>? _taskSubscription;
 
-  /// Add a new task
-  Future<void> addTask(Task task) async {
-    await TaskService.addTaskToProject(task, project);
-  }
-
   /// Edit an existing task
   Future<void> editTask(Task task) async {
-    await TaskService.updateTask(task, project.id.toString()); // replaces old task
+    await TaskService.updateTask(task, project); // replaces old task
     await retrieveTasks(); // refresh stream
   }
 

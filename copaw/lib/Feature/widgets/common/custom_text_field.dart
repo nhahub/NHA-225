@@ -4,22 +4,21 @@ import 'package:flutter/material.dart';
 typedef onValidator = String? Function(String?)?;
 
 class CustomTextFormField extends StatelessWidget {
-  Color colorBorder;
-  String? hintText;
-  TextStyle? hintStyle;
-  String? labelText;
-  TextStyle? labelStyle;
-  Widget? prefixIcon;
-  Widget? suffixIcon;
-  TextEditingController controller;
-  onValidator? validator;
-  TextInputType? keyBoardType;
-  bool obscureText;
-  String? obscuringCharacter;
-  int? maxLines;
+  final Color colorBorder;
+  final String? hintText;
+  final TextStyle? hintStyle;
+  final String? labelText;
+  final TextStyle? labelStyle;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final TextEditingController controller;
+  final onValidator? validator;
+  final TextInputType? keyBoardType;
+  final bool obscureText;
+  final String? obscuringCharacter;
+  final int? maxLines;
 
-
-  CustomTextFormField({
+  const CustomTextFormField({
     super.key,
     this.colorBorder = AppColors.grayColor,
     this.hintText,
@@ -35,58 +34,83 @@ class CustomTextFormField extends StatelessWidget {
     this.obscuringCharacter,
     this.maxLines,
   });
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 60,
-      width: MediaQuery.of(context).size.width * 0.9,
+    final width = MediaQuery.of(context).size.width * 0.9;
+    final OutlineInputBorder defaultBorder = borderDecoration(colorBorder);
+    final OutlineInputBorder errorBorder = borderDecoration(
+      AppColors.warningColor,
+    );
+
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.mainColor.withOpacity(0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+            spreadRadius: -6,
+          ),
+        ],
+      ),
       child: TextFormField(
         maxLines: maxLines ?? 1,
+        controller: controller,
+        validator: validator,
+        keyboardType: keyBoardType,
+        obscureText: obscureText,
+        cursorColor: AppColors.mainColor,
+        obscuringCharacter: obscuringCharacter ?? '•',
         decoration: InputDecoration(
-          enabledBorder: borderDecoration(colorBorder: colorBorder),
-          focusedBorder: borderDecoration(colorBorder: colorBorder),
-          errorBorder: borderDecoration(colorBorder: AppColors.warningColor),
-          focusedErrorBorder: borderDecoration(
-            colorBorder: AppColors.warningColor,
+          filled: true,
+          fillColor: AppColors.whiteColor,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 18,
           ),
+          enabledBorder: defaultBorder,
+          focusedBorder: borderDecoration(AppColors.mainColor),
+          errorBorder: errorBorder,
+          focusedErrorBorder: errorBorder,
           hintText: hintText,
           hintStyle:
               hintStyle ??
               TextStyle(
-                color: AppColors.grayColor,
-                fontSize: 16,
+                color: AppColors.grayColor.withOpacity(0.8),
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
           labelText: labelText,
           labelStyle:
               labelStyle ??
               TextStyle(
-                color: AppColors.grayColor,
-                fontSize: 16,
+                color: AppColors.textColor.withOpacity(0.7),
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
           prefixIcon: prefixIcon,
-          suffix: suffixIcon,
-          errorStyle: TextStyle(
-            color: AppColors.warningColor,
-            fontSize: 16,
+          suffixIcon: suffixIcon,
+          errorStyle: const TextStyle(
+            fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
         ),
-        keyboardType: keyBoardType,
-        obscureText: obscureText,
-        controller: controller,
-        validator: validator,
-        cursorColor: AppColors.mainColor,
-        obscuringCharacter: obscuringCharacter ?? '.',
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textColor,
+        ),
       ),
     );
   }
 
-  OutlineInputBorder borderDecoration({required Color colorBorder}) {
+  OutlineInputBorder borderDecoration(Color color) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: colorBorder, width: 2),
+      borderRadius: BorderRadius.circular(18),
+      borderSide: BorderSide(color: color.withOpacity(0.8), width: 1.4),
     );
   }
 }

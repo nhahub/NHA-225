@@ -49,7 +49,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         onPressed: () {
           Navigator.pushNamed(context, AppRoutes.createProject);
         },
-        backgroundColor: AppColors.mainColor,
+        backgroundColor: AppColors.secondery,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, size: 30, color: AppColors.whiteColor),
       ),

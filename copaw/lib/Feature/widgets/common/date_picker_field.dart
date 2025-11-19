@@ -25,6 +25,14 @@ class _DatePickerFieldState extends State<DatePickerField> {
       initialDate: widget.selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainColor),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate != null) {
@@ -34,44 +42,76 @@ class _DatePickerFieldState extends State<DatePickerField> {
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
-
+    final width = MediaQuery.of(context).size.width;
     final displayText = widget.selectedDate != null
-        ? DateFormat('yyyy-MM-dd').format(widget.selectedDate!)
-        : "Select Date";
+        ? DateFormat('EEE, MMM d • yyyy').format(widget.selectedDate!)
+        : "Select a deadline";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+            color: AppColors.textColor,
+          ),
         ),
-        const SizedBox(height: 6),
-        GestureDetector(
-          onTap: () => _selectDate(context),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: width * 0.04,
-              vertical: height * 0.015,
-            ),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.grayColor),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today, color: AppColors.textColor),
-                SizedBox(width: width * 0.03),
-                Text(
-                  displayText,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textColor,
-                  ),
+        const SizedBox(height: 10),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () => _selectDate(context),
+            child: Ink(
+              width: width,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFDFBFF), Color(0xFFF1F4FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.grayColor.withOpacity(0.4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.mainColor.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                    spreadRadius: -10,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.whiteColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.calendar_today_rounded,
+                      color: AppColors.mainColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      displayText,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: AppColors.textColor),
+                ],
+              ),
             ),
           ),
         ),

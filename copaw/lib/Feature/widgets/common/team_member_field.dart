@@ -31,7 +31,7 @@ class TeamMembersField extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context), // close dialog
+            onPressed: () => Navigator.pop(context),
             child: const Text("Cancel"),
           ),
           ElevatedButton(
@@ -39,7 +39,7 @@ class TeamMembersField extends StatelessWidget {
               final email = emailController.text.trim();
               if (email.isNotEmpty) {
                 onAdd(email);
-                Navigator.pop(context); // close after adding
+                Navigator.pop(context);
               }
             },
             style: ElevatedButton.styleFrom(
@@ -57,55 +57,121 @@ class TeamMembersField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Team Members",
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.grayColor),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              // Display all member avatars
-              ...members.map(
-                (member) => Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage(member),
-                    radius: 20,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Team Members",
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+            ),
+            if (members.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.mainColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  "${members.length} active",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.mainColor,
                   ),
                 ),
               ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.whiteColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.grayColor.withOpacity(0.4)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.textColor.withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 12),
+                spreadRadius: -10,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: members
+                        .map((member) => _AvatarChip(image: member))
+                        .toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              _AddMemberButton(onTap: () => _showAddMemberDialog(context)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-              // Add member button
-              GestureDetector(
-                onTap: () => _showAddMemberDialog(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grayColor),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.add, size: 18, color: Colors.black54),
-                      SizedBox(width: 6),
-                      Text(
-                        "Add Member",
-                        style: TextStyle(fontSize: 14, color: Colors.black87),
-                      ),
-                    ],
-                  ),
+class _AvatarChip extends StatelessWidget {
+  final String image;
+
+  const _AvatarChip({required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: CircleAvatar(
+        radius: 22,
+        backgroundColor: AppColors.mainColor.withOpacity(0.1),
+        child: CircleAvatar(radius: 20, backgroundImage: AssetImage(image)),
+      ),
+    );
+  }
+}
+
+class _AddMemberButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddMemberButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.mainColor.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            children: const [
+              Icon(Icons.add, size: 18, color: AppColors.mainColor),
+              SizedBox(width: 6),
+              Text(
+                "Add",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.mainColor,
                 ),
               ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

@@ -1,12 +1,13 @@
+import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final bool inverted; // ✅ لتبديل الألوان
-  final IconData? icon; // ✅ لإضافة أيقونة (مثل +)
-  final Color? color; // ✅ لون الزر الرئيسي
-  final Color? textColor; // ✅ لون النص
+  final bool inverted;
+  final IconData? icon;
+  final Color? color;
+  final Color? textColor;
   final double? width;
   final double? height;
 
@@ -24,43 +25,84 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = color ?? const Color.fromARGB(255, 24, 76, 165);
-    final isInverted = inverted;
+    final primaryColor = color ?? AppColors.mainColor;
+    final isDisabled = onPressed == null;
+    final radius = BorderRadius.circular(16);
+    final gradient = LinearGradient(
+      colors: [
+        primaryColor,
+        Color.lerp(primaryColor, AppColors.whiteColor, 0.25)!,
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
 
-    final buttonBackground = isInverted ? Colors.white : primaryColor;
-    final buttonTextColor = isInverted ? primaryColor : (textColor ?? Colors.white);
-    final borderColor = isInverted ? primaryColor : Colors.transparent;
+    final backgroundColor = inverted
+        ? AppColors.whiteColor
+        : (isDisabled ? AppColors.grayColor.withOpacity(0.4) : null);
 
-    return SizedBox(
-      height: height ?? 55,
-      width: width ?? MediaQuery.of(context).size.width * 0.9,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: buttonBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: borderColor, width: 1.5),
-          ),
-          elevation: isInverted ? 0 : 2,
-        ),
-        onPressed: onPressed,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, color: buttonTextColor, size: 20),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                color: buttonTextColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+    final textStyle = TextStyle(
+      color: inverted
+          ? primaryColor
+          : (textColor ??
+                AppColors.whiteColor.withOpacity(isDisabled ? 0.8 : 1)),
+      fontSize: 16,
+      letterSpacing: 0.2,
+      fontWeight: FontWeight.w600,
+    );
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: isDisabled ? 0.6 : 1,
+      child: SizedBox(
+        height: height ?? 56,
+        width: width ?? MediaQuery.of(context).size.width,
+        child: Material(
+          color: Colors.transparent,
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: inverted || isDisabled ? null : gradient,
+              color: backgroundColor,
+              borderRadius: radius,
+              border: Border.all(
+                color: inverted ? primaryColor : Colors.transparent,
+                width: 1.3,
+              ),
+              boxShadow: [
+                if (!inverted && !isDisabled)
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.35),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                    spreadRadius: -6,
+                  ),
+              ],
+            ),
+            child: InkWell(
+              onTap: onPressed,
+              borderRadius: radius,
+              highlightColor: primaryColor.withOpacity(0.08),
+              splashFactory: InkRipple.splashFactory,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, color: textStyle.color, size: 20),
+                    const SizedBox(width: 10),
+                  ],
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textStyle,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
