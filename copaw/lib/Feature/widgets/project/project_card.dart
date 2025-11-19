@@ -47,10 +47,10 @@ class ProjectCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 24,
+            color: AppColors.secondery.withOpacity(0.40),
+            blurRadius: 30,
             offset: const Offset(0, 14),
-            spreadRadius: -10,
+            spreadRadius: -5,
           ),
         ],
       ),

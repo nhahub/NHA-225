@@ -11,5 +11,5 @@ class AppColors {
   static const Color blackColor = Color(0xFF000000);
   static const Color orangeLight = Color(0xFFFFF3E0);
   static const Color orangeDark = Color(0xFFFFA726);
-  static const Color secondery = Color.fromARGB(255, 59, 145, 243);
+  static const Color secondery = Color.fromARGB(255, 87, 158, 238);
 }
