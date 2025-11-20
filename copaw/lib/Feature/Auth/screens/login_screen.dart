@@ -5,7 +5,6 @@ import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
 import 'package:copaw/provider/user_cubit.dart';
-import 'package:copaw/utils/app_routes.dart';
 import 'package:copaw/utils/app_validator.dart';
 import 'package:copaw/utils/dialog_utils.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key});
+  LoginScreen({super.key, this.initialMessage});
+
+  final String? initialMessage;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -21,6 +22,33 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   AuthViewModel authViewModel = AuthViewModel();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final message = widget.initialMessage;
+      if (message != null && mounted) {
+        DialogUtils.hideLoadingIfVisible(context: context);
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            action: SnackBarAction(
+              label: "Register",
+              onPressed: () {
+                if (!mounted) return;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => RegisterScreen()),
+                );
+              },
+            ),
+          ),
+        );
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthViewModel, AuthStates>(

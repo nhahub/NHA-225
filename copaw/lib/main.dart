@@ -111,7 +111,11 @@ class AuthGate extends StatelessWidget {
             }
 
             if (!userSnapshot.hasData || userSnapshot.data == null) {
-              return LoginScreen();
+              FirebaseAuth.instance.signOut();
+              return LoginScreen(
+                initialMessage:
+                    "This account is not registered yet. Please register first.",
+              );
             }
 
             final currentUser = userSnapshot.data!;

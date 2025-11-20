@@ -91,12 +91,28 @@ class AuthViewModel extends Cubit<AuthStates> {
               email: emailController.text,
               password: passwordController.text,
             );
-        // Check if the credential or user is null
-        // If the user is null, it means the login failed
-        var user = await AuthService.readUserFromFireStore(
-          credential.user?.uid ?? '',
-        );
+
+        final firebaseUser = credential.user;
+        if (firebaseUser == null) {
+          await FirebaseAuth.instance.signOut();
+          emit(
+            AuthErrorState(
+              errorMessage:
+                  "Login failed. Please try again or contact support if the issue persists.",
+            ),
+          );
+          return;
+        }
+
+        var user = await AuthService.readUserFromFireStore(firebaseUser.uid);
         if (user == null) {
+          await FirebaseAuth.instance.signOut();
+          emit(
+            AuthErrorState(
+              errorMessage:
+                  "We couldn't find your profile data. Please register again.",
+            ),
+          );
           return;
         }
 

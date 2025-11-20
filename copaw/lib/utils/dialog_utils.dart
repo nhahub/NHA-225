@@ -3,12 +3,14 @@ import 'package:copaw/utils/app_styles.dart';
 import 'package:flutter/material.dart';
 
 class DialogUtils {
+  static bool _isLoadingVisible = false;
   /// Shows a loading dialog with a circular progress indicator and a loading text.
   /// The dialog is not dismissible by tapping outside.
   static void showLoading({
     required BuildContext context,
     required String loadingText,
   }) {
+    _isLoadingVisible = true;
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -31,13 +33,22 @@ class DialogUtils {
           ],
         ),
       ),
-    );
+    ).then((_) => _isLoadingVisible = false);
   }
 
   /// Hides the currently displayed loading dialog.
   /// It is assumed that a loading dialog is currently being shown.
   static void hideLoading({required BuildContext context}) {
-    Navigator.pop(context);
+    hideLoadingIfVisible(context: context);
+  }
+
+  static void hideLoadingIfVisible({required BuildContext context}) {
+    if (!_isLoadingVisible) return;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+    _isLoadingVisible = false;
   }
 
   /// Shows a message dialog with a title, message, and optional positive and negative actions.
@@ -57,7 +68,12 @@ class DialogUtils {
     if (posActionName != null) {
       actions.add(
         TextButton(
-          onPressed: () => posAction?.call(),
+          onPressed: () {
+            if (Navigator.of(context, rootNavigator: true).canPop()) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+            posAction?.call();
+          },
           child: Text(posActionName, style: AppStyles.medium16Primary),
         ),
       );
