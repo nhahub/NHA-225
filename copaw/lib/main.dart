@@ -111,9 +111,7 @@ class AuthGate extends StatelessWidget {
             }
 
             if (!userSnapshot.hasData || userSnapshot.data == null) {
-              return const Scaffold(
-                body: Center(child: Text("Failed to load user data")),
-              );
+              return LoginScreen();
             }
 
             final currentUser = userSnapshot.data!;

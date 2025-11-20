@@ -231,7 +231,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           side: const BorderSide(color: Colors.grey),
                         ),
                       ),
-                      onPressed: () => authViewModel.loginWithGoogle(context),
+                      onPressed: () => authViewModel.registerWithGoogle(context),
                     ),
                   ),
 

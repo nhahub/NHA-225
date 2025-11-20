@@ -29,13 +29,13 @@ class _LoginScreenState extends State<LoginScreen> {
         if (state is AuthLoadingState) {
           DialogUtils.showLoading(
             context: context,
-            loadingText: "Registering...",
+            loadingText: "logging in...",
           );
         } else if (state is AuthSuccessState) {
           DialogUtils.hideLoading(context: context);
           DialogUtils.showMessage(
             context: context,
-            message: state.successMessage ?? "Registration successful",
+            message: state.successMessage ?? "Login successful",
             title: "Success",
             posActionName: "OK",
             posAction: () {
@@ -53,13 +53,14 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else if (state is AuthErrorState) {
           DialogUtils.hideLoading(context: context);
-          DialogUtils.showMessage(
-            context: context,
-            message: state.errorMessage,
-            title: "Registration Error",
-            posActionName: "OK",
-            posAction: () => Navigator.pop(context),
-          );
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            DialogUtils.showMessage(
+              context: context,
+              message: state.errorMessage,
+              posActionName: "OK",
+              posAction: () => Navigator.pop(context),
+            );
+          });
         }
       },
       child: Scaffold(
