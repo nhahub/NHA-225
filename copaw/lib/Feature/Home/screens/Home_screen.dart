@@ -25,8 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _pages = [
       const ProjectsScreen(),
       KanbanScreen(user: widget.user),
-       CalendarScreen(user: widget.user,),
-       AiAssistantScreen(),
+      CalendarScreen(user: widget.user),
+      AiAssistantScreen(user: widget.user),
     ];
   }
 
