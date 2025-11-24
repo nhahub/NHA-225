@@ -31,7 +31,7 @@ class CalendarScreen extends StatelessWidget {
 
           return Scaffold(
             backgroundColor: AppColors.whiteColor,
-            appBar: MyCustomAppBar(head: 'Calendar', img: null),
+            appBar: MyCustomAppBar(head: 'Calendar', img: user.avatarUrl),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Customcontainer(

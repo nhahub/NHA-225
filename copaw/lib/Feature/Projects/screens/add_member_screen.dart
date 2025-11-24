@@ -72,9 +72,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
             toolbarHeight: 90,
             backgroundColor: Colors.transparent,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(28),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
             ),
             flexibleSpace: Container(
               decoration: const BoxDecoration(
@@ -156,7 +154,10 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                           children: [
                             const Text(
                               "Add new member by email:",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Customcontainer(
@@ -208,10 +209,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                   );
                   return;
                 }
-                cubit.addMemberToProject(
-                  widget.projectId,
-                  email,
-                );
+                cubit.addMemberToProject(widget.projectId, email);
               },
             ),
           ),
@@ -273,8 +271,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
               ),
 
               const SizedBox(width: 8),
-
-            
             ],
           ),
 
@@ -298,20 +294,25 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                           backgroundColor: AppColors.mainColor.withOpacity(0.1),
                           child: CircleAvatar(
                             radius: isSmall ? 21 : 23,
-                            backgroundImage: (avatar != null && avatar.isNotEmpty)
+                            backgroundImage:
+                                (avatar != null && avatar.isNotEmpty)
                                 ? NetworkImage(avatar)
-                                : const AssetImage('assets/NULLP.webp') as ImageProvider,
+                                : const AssetImage('assets/NULLP.webp')
+                                      as ImageProvider,
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          member.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: isSmall ? 11 : 12,
-                            color: AppColors.textColor.withOpacity(0.7),
+                        SizedBox(
+                          width: isSmall ? 60 : 70,
+                          child: Text(
+                            member.name,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: isSmall ? 11 : 12,
+                              color: AppColors.textColor.withOpacity(0.7),
+                            ),
                           ),
                         ),
                       ],
@@ -346,17 +347,28 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
-                      backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                      backgroundImage:
+                          user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                           ? NetworkImage(user.avatarUrl!)
-                          : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                          : const AssetImage('assets/images/default_avatar.png')
+                                as ImageProvider,
                     ),
                     title: Row(
                       children: [
-                        Text(user.name),
+                        Expanded(
+                          child: Text(
+                            user.name,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
                         const SizedBox(width: 6),
                         if (isLeader)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.lightGrayColor,
                               borderRadius: BorderRadius.circular(12),

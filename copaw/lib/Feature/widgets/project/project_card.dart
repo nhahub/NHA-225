@@ -7,7 +7,7 @@ class ProjectCard extends StatelessWidget {
   final int totalTasks;
   final int completedTasks;
   final DateTime deadline;
-  final List<String> members;
+  final List<String?> memberAvatars;
   final String? currentUserName;
   final VoidCallback? onDelete;
 
@@ -17,7 +17,7 @@ class ProjectCard extends StatelessWidget {
     required this.totalTasks,
     required this.completedTasks,
     required this.deadline,
-    required this.members,
+    required this.memberAvatars,
     this.onDelete,
     this.currentUserName,
   });
@@ -181,17 +181,23 @@ class ProjectCard extends StatelessWidget {
                         children: [
                           if (currentUserName != null)
                             _CurrentUserBadge(name: currentUserName!),
-                          for (int i = 0; i < members.length && i < 4; i++)
+                          for (
+                            int i = 0;
+                            i < memberAvatars.length && i < 4;
+                            i++
+                          )
                             Positioned(
                               left:
                                   (i + (currentUserName != null ? 1 : 0)) * 28,
-                              child: _AvatarBubble(image: members[i]),
+                              child: _AvatarBubble(avatarUrl: memberAvatars[i]),
                             ),
-                          if (members.length > 4)
+                          if (memberAvatars.length > 4)
                             Positioned(
                               left:
                                   (4 + (currentUserName != null ? 1 : 0)) * 28,
-                              child: _OverflowBubble(count: members.length - 4),
+                              child: _OverflowBubble(
+                                count: memberAvatars.length - 4,
+                              ),
                             ),
                         ],
                       ),
@@ -315,9 +321,9 @@ class _IconBubble extends StatelessWidget {
 }
 
 class _AvatarBubble extends StatelessWidget {
-  final String image;
+  final String? avatarUrl;
 
-  const _AvatarBubble({required this.image});
+  const _AvatarBubble({required this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -327,7 +333,32 @@ class _AvatarBubble extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2),
-        image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
+        color: AppColors.mainColor.withOpacity(0.2),
+      ),
+      child: ClipOval(
+        child: avatarUrl != null && avatarUrl!.isNotEmpty
+            ? Image.network(
+                avatarUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: AppColors.mainColor.withOpacity(0.2),
+                    child: const Icon(
+                      Icons.person,
+                      color: AppColors.mainColor,
+                      size: 24,
+                    ),
+                  );
+                },
+              )
+            : Container(
+                color: AppColors.mainColor.withOpacity(0.2),
+                child: const Icon(
+                  Icons.person,
+                  color: AppColors.mainColor,
+                  size: 24,
+                ),
+              ),
       ),
     );
   }

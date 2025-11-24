@@ -3,18 +3,17 @@ import 'package:copaw/Feature/widgets/common/appbar.dart';
 import 'package:copaw/Feature/widgets/AI/ProjectList.dart';
 import 'package:copaw/Feature/widgets/AI/SelectTasks.dart';
 import 'package:copaw/Feature/widgets/AI/customchat.dart';
-class AiAssistantScreen extends StatelessWidget {
-  AiAssistantScreen({super.key});
+import 'package:copaw/Models/user.dart';
 
-  final MyCustomAppBar appBar1 = MyCustomAppBar(
-    head: 'AI Assistant',
-    img: null,
-  );
+class AiAssistantScreen extends StatelessWidget {
+  final UserModel user;
+
+  const AiAssistantScreen({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar1,
+      appBar: MyCustomAppBar(head: 'AI Assistant', img: user.avatarUrl),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -29,7 +28,7 @@ class AiAssistantScreen extends StatelessWidget {
 
               const SelectTasks(),
               const SizedBox(height: 50),
-              const Customchat()
+              const Customchat(),
             ],
           ),
         ),
