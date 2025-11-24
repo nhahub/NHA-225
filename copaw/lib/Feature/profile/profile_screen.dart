@@ -6,10 +6,23 @@ import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:copaw/provider/user_cubit.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final UserModel? user;
   const ProfileScreen({super.key, this.user});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isUploading = false;
 
   Future<UserModel?> _loadCurrentUser() async {
     final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -22,10 +35,117 @@ class ProfileScreen extends StatelessWidget {
   Future<Map<String, int>> _getCounts(String userId) async {
     final projects = await ProjectService.getUserProjects(userId);
     final tasks = await TaskService.getUserTasks(userId);
-    return {
-      'projects': projects.length,
-      'tasks': tasks.length,
-    };
+    return {'projects': projects.length, 'tasks': tasks.length};
+  }
+
+  Future<void> _pickAndUploadImage(UserModel currentUser) async {
+    print("DEBUG: _pickAndUploadImage called");
+
+    // 1. Request Permissions
+    PermissionStatus status;
+    if (Platform.isAndroid) {
+      // For Android 13+ (SDK 33+), use READ_MEDIA_IMAGES if available,
+      // but permission_handler handles this logic mostly.
+      // For older Android, READ_EXTERNAL_STORAGE.
+      // We'll try requesting storage first.
+      final storageStatus = await Permission.storage.request();
+      // If that's denied or restricted, try photos (Android 13+)
+      if (!storageStatus.isGranted) {
+        status = await Permission.photos.request();
+      } else {
+        status = storageStatus;
+      }
+    } else {
+      // iOS
+      status = await Permission.photos.request();
+    }
+
+    print("DEBUG: Permission status: $status");
+
+    if (status.isPermanentlyDenied) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Permission permanently denied. Please enable in settings.",
+            ),
+          ),
+        );
+        openAppSettings();
+      }
+      return;
+    }
+
+    // Note: On some Android versions, if the user has already granted "limited" access
+    // or if the picker is a system picker (Photo Picker), we might not strictly NEED
+    // this permission check to pass as 'granted' for the picker to work,
+    // but it's good practice to check.
+    // However, the image_picker plugin often handles the system picker which requires NO permissions.
+    // So we will proceed even if status is not explicitly 'granted', but log it.
+
+    final picker = ImagePicker();
+    XFile? pickedFile;
+    try {
+      print("DEBUG: Opening ImagePicker...");
+      pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        requestFullMetadata: false, // Optimization
+      );
+      print("DEBUG: ImagePicker returned: ${pickedFile?.path}");
+    } catch (e) {
+      print("DEBUG: Error picking image: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error picking image: $e")));
+      }
+      return;
+    }
+
+    if (pickedFile == null) {
+      print("DEBUG: User canceled picker");
+      return;
+    }
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final file = File(pickedFile.path);
+      final storageRef = FirebaseStorage.instance.ref().child(
+        'user_avatars/${currentUser.id}',
+      );
+
+      print("DEBUG: Uploading to ${storageRef.fullPath}");
+      await storageRef.putFile(file);
+      final downloadUrl = await storageRef.getDownloadURL();
+      print("DEBUG: Upload success. URL: $downloadUrl");
+
+      // Update Firestore
+      final updatedUser = currentUser.copyWith(avatarUrl: downloadUrl);
+      await AuthService.addUserToFirestore(updatedUser);
+
+      // Update Cubit
+      if (mounted) {
+        context.read<UserCubit>().setUser(updatedUser);
+      }
+
+      setState(() {}); // Refresh UI
+    } catch (e) {
+      print("DEBUG: Upload failed: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Image upload failed: $e")));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
   }
 
   /// 🔹 Logout logic (Firebase only)
@@ -33,21 +153,28 @@ class ProfileScreen extends StatelessWidget {
     try {
       await FirebaseAuth.instance.signOut();
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
-        (route) => false,
-      );
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => LoginScreen()),
+          (route) => false,
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Logout failed: $e")));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Logout failed: $e")));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<UserModel?>(
-      future: user != null ? Future.value(user) : _loadCurrentUser(),
+      future: widget.user != null
+          ? Future.value(widget.user)
+          : _loadCurrentUser(),
       builder: (context, userSnapshot) {
         if (userSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -56,13 +183,12 @@ class ProfileScreen extends StatelessWidget {
         }
 
         if (!userSnapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: Text("User not found")),
-          );
+          return const Scaffold(body: Center(child: Text("User not found")));
         }
 
         final displayedUser = userSnapshot.data!;
         final currentUid = FirebaseAuth.instance.currentUser?.uid;
+
         final isCurrentUser = displayedUser.id == currentUid;
 
         return Scaffold(
@@ -98,18 +224,74 @@ class ProfileScreen extends StatelessWidget {
                           width: double.infinity,
                           color: Colors.blue[100],
                         ),
-                        CircleAvatar(
-                          radius: 70,
-                          backgroundColor: Colors.white,
-                          child: CircleAvatar(
-                            radius: 65,
-                            backgroundImage: displayedUser.avatarUrl != null &&
-                                    displayedUser.avatarUrl!.isNotEmpty
-                                ? NetworkImage(displayedUser.avatarUrl!)
-                                : const AssetImage(
-                                        'assets/images/default_avatar.png')
-                                    as ImageProvider,
-                          ),
+                        Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: isCurrentUser
+                                  ? () {
+                                      print("DEBUG: Avatar tapped");
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Checking permissions...",
+                                          ),
+                                        ),
+                                      );
+                                      _pickAndUploadImage(displayedUser);
+                                    }
+                                  : () {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "You can only edit your own profile",
+                                          ),
+                                        ),
+                                      );
+                                    },
+                              child: CircleAvatar(
+                                radius: 70,
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                  radius: 65,
+                                  backgroundImage:
+                                      displayedUser.avatarUrl != null &&
+                                          displayedUser.avatarUrl!.isNotEmpty
+                                      ? NetworkImage(displayedUser.avatarUrl!)
+                                      : const AssetImage(
+                                              'assets/images/default_avatar.png',
+                                            )
+                                            as ImageProvider,
+                                ),
+                              ),
+                            ),
+                            if (_isUploading)
+                              const Positioned.fill(
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            if (isCurrentUser)
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.blueAccent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
@@ -136,14 +318,23 @@ class ProfileScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Column(
                         children: [
-                          _buildInfoTile(Icons.phone, 'Phone',
-                              displayedUser.phone ?? 'N/A'),
+                          _buildInfoTile(
+                            Icons.phone,
+                            'Phone',
+                            displayedUser.phone ?? 'N/A',
+                          ),
                           const Divider(),
-                          _buildInfoTile(Icons.task_alt, 'Tasks',
-                              '${counts['tasks']} assigned'),
+                          _buildInfoTile(
+                            Icons.task_alt,
+                            'Tasks',
+                            '${counts['tasks']} assigned',
+                          ),
                           const Divider(),
-                          _buildInfoTile(Icons.work_outline, 'Projects',
-                              '${counts['projects']} joined'),
+                          _buildInfoTile(
+                            Icons.work_outline,
+                            'Projects',
+                            '${counts['projects']} joined',
+                          ),
                         ],
                       ),
                     ),
@@ -161,7 +352,8 @@ class ProfileScreen extends StatelessWidget {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        'Start chat with ${displayedUser.name}'),
+                                      'Start chat with ${displayedUser.name}',
+                                    ),
                                   ),
                                 );
                               },
@@ -180,8 +372,14 @@ class ProfileScreen extends StatelessWidget {
                           if (isCurrentUser)
                             ElevatedButton.icon(
                               onPressed: () => _logout(context),
-                              icon: const Icon(Icons.logout,color: AppColors.whiteColor,),
-                              label: const Text('Logout',style: TextStyle(color: AppColors.whiteColor),),
+                              icon: const Icon(
+                                Icons.logout,
+                                color: AppColors.whiteColor,
+                              ),
+                              label: const Text(
+                                'Logout',
+                                style: TextStyle(color: AppColors.whiteColor),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.orangeDark,
                                 minimumSize: const Size(double.infinity, 48),

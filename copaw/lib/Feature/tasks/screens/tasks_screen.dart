@@ -9,8 +9,6 @@ import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-
 class KanbanScreen extends StatelessWidget {
   final UserModel user;
   const KanbanScreen({super.key, required this.user});
@@ -22,11 +20,11 @@ class KanbanScreen extends StatelessWidget {
       child: BlocBuilder<CreateTaskCubit, CreateTaskState>(
         builder: (context, state) {
           final cubit = context.read<CreateTaskCubit>();
-          final appBar1 = MyCustomAppBar(head: 'My Tasks', img: null);
+          final appBar1 = MyCustomAppBar(head: 'My Tasks', img: user.avatarUrl);
 
           return Scaffold(
             appBar: appBar1,
-        
+
             body: Builder(
               builder: (context) {
                 if (state is CreateTaskLoading) {
@@ -37,15 +35,20 @@ class KanbanScreen extends StatelessWidget {
                   final tasks = state.tasks;
 
                   if (tasks.isEmpty) {
-                    return const Center(child: Text("No tasks found for this user"));
+                    return const Center(
+                      child: Text("No tasks found for this user"),
+                    );
                   }
 
-                  final todoTasks =
-                      tasks.where((t) => t.status == "todo").toList();
-                  final doingTasks =
-                      tasks.where((t) => t.status == "doing").toList();
-                  final doneTasks =
-                      tasks.where((t) => t.status == "done").toList();
+                  final todoTasks = tasks
+                      .where((t) => t.status == "todo")
+                      .toList();
+                  final doingTasks = tasks
+                      .where((t) => t.status == "doing")
+                      .toList();
+                  final doneTasks = tasks
+                      .where((t) => t.status == "done")
+                      .toList();
 
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -97,16 +100,10 @@ class KanbanScreen extends StatelessWidget {
             if (taskList.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(12.0),
-                child: Text(
-                  "No tasks",
-                  style: TextStyle(color: Colors.grey),
-                ),
+                child: Text("No tasks", style: TextStyle(color: Colors.grey)),
               ),
             ...taskList
-                .map((task) => TaskItem(
-                      task: task,
-                      projectUsers: [],
-                    ))
+                .map((task) => TaskItem(task: task, projectUsers: []))
                 .toList(),
             const SizedBox(height: 16),
           ],

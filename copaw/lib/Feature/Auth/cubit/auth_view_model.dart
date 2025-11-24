@@ -18,7 +18,7 @@ class AuthViewModel extends Cubit<AuthStates> {
 
   // GlobalKey for the form state
   var formKey = GlobalKey<FormState>();
-  
+
   void register(BuildContext context) async {
     try {
       if (formKey.currentState!.validate()) {
@@ -139,91 +139,103 @@ class AuthViewModel extends Cubit<AuthStates> {
   }
 
   void loginWithGoogle(BuildContext context) async {
-  emit(AuthLoadingState());
-
-  try {
-    // 1️⃣ Prompt user to select a Google account
-    UserCredential userCredential = await AuthService().signInWithGoogle();
-    User? firebaseUser = userCredential.user;
-    // Safety: if sign-in was canceled
-    if (firebaseUser == null) {
-      emit(AuthErrorState(errorMessage: "Google sign-in was canceled or failed."));
-      return;
-    }
-
-    // 2️⃣ Check Firestore for registered app user
-    UserModel? existingUser = await AuthService.readUserFromFireStore(firebaseUser.uid);
-   
-
-    if (existingUser == null) {
-      // Not registered in Firestore → block login
-     // await FirebaseAuth.instance.signOut(); // remove auth session
-      emit(AuthErrorState(
-        errorMessage: "This Google account is not registered yet. Please register first.",
-      ));
-       print("USER ISSSS____________________________ :   $existingUser");
-       print("CURRENT STATE AFTER EMIT: ${state.runtimeType}");
-      return;
-    }
-
-    // 3️⃣ Firestore user exists → login success
-    context.read<UserCubit>().setUser(existingUser);
-    emit(AuthSuccessState(
-      successMessage: "Google login successful",
-      user: firebaseUser,
-    ));
-  } catch (e) {
-    // Any unexpected errors → ensure user is signed out and emit error
-    await FirebaseAuth.instance.signOut();
-    emit(AuthErrorState(errorMessage: e.toString()));
-  }
-}
-
-
-
-void registerWithGoogle(BuildContext context) async {
-  try {
     emit(AuthLoadingState());
 
-    UserCredential userCredential = await AuthService().signInWithGoogle();
-    User? user = userCredential.user;
-
-    if (user != null) {
-      // Check if this Google account is already registered
-      UserModel? existingUser =
-          await AuthService.readUserFromFireStore(user.uid);
-
-      if (existingUser != null) {
-        // User already exists → cannot register twice
-        await FirebaseAuth.instance.signOut();
-
-        emit(AuthErrorState(
-          errorMessage:
-              "This Google account is already registered. Please login instead.",
-        ));
+    try {
+      // 1️⃣ Prompt user to select a Google account
+      UserCredential userCredential = await AuthService().signInWithGoogle();
+      User? firebaseUser = userCredential.user;
+      // Safety: if sign-in was canceled
+      if (firebaseUser == null) {
+        emit(
+          AuthErrorState(
+            errorMessage: "Google sign-in was canceled or failed.",
+          ),
+        );
         return;
       }
 
-      // Create the new user
-      UserModel newUser = UserModel(
-        id: user.uid,
-        name: user.displayName ?? 'No Name',
-        email: user.email ?? 'No Email',
-        phone: user.phoneNumber ?? 'No Phone',
+      // 2️⃣ Check Firestore for registered app user
+      UserModel? existingUser = await AuthService.readUserFromFireStore(
+        firebaseUser.uid,
       );
 
-      await AuthService.addUserToFirestore(newUser);
-      context.read<UserCubit>().setUser(newUser);
+      if (existingUser == null) {
+        // Not registered in Firestore → block login
+        await FirebaseAuth.instance.signOut(); // remove auth session
+        emit(
+          AuthErrorState(
+            errorMessage:
+                "This Google account is not registered yet. Please register first.",
+          ),
+        );
+        print("USER ISSSS____________________________ :   $existingUser");
+        print("CURRENT STATE AFTER EMIT: ${state.runtimeType}");
+        return;
+      }
 
-      emit(AuthSuccessState(
-        successMessage: "Google registration successful",
-        user: user,
-      ));
+      // 3️⃣ Firestore user exists → login success
+      context.read<UserCubit>().setUser(existingUser);
+      emit(
+        AuthSuccessState(
+          successMessage: "Google login successful",
+          user: firebaseUser,
+        ),
+      );
+    } catch (e) {
+      // Any unexpected errors → ensure user is signed out and emit error
+      await FirebaseAuth.instance.signOut();
+      emit(AuthErrorState(errorMessage: e.toString()));
     }
-  } catch (e) {
-    emit(AuthErrorState(errorMessage: e.toString()));
   }
-}
 
+  void registerWithGoogle(BuildContext context) async {
+    try {
+      emit(AuthLoadingState());
 
+      UserCredential userCredential = await AuthService().signInWithGoogle();
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Check if this Google account is already registered
+        UserModel? existingUser = await AuthService.readUserFromFireStore(
+          user.uid,
+        );
+
+        if (existingUser != null) {
+          // User already exists → cannot register twice
+          await FirebaseAuth.instance.signOut();
+
+          emit(
+            AuthErrorState(
+              errorMessage:
+                  "This Google account is already registered. Please login instead.",
+            ),
+          );
+          return;
+        }
+
+        // Create the new user
+        UserModel newUser = UserModel(
+          id: user.uid,
+          name: user.displayName ?? 'No Name',
+          email: user.email ?? 'No Email',
+          phone: user.phoneNumber ?? 'No Phone',
+          avatarUrl: user.photoURL,
+        );
+
+        await AuthService.addUserToFirestore(newUser);
+        context.read<UserCubit>().setUser(newUser);
+
+        emit(
+          AuthSuccessState(
+            successMessage: "Google registration successful",
+            user: user,
+          ),
+        );
+      }
+    } catch (e) {
+      emit(AuthErrorState(errorMessage: e.toString()));
+    }
+  }
 }

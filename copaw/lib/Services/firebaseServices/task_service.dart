@@ -129,8 +129,9 @@ class TaskService {
       final data = doc.data();
       if (data.isEmpty) continue;
       final project = ProjectModel.fromFirestore(data);
+      // Filter tasks where the user is assigned (in assignedTo list)
       final tasksForUser = project.tasks
-          .where((t) => t.createdBy == userId)
+          .where((t) => t.assignedTo.contains(userId))
           .toList();
       userTasks.addAll(tasksForUser);
     }

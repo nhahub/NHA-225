@@ -43,46 +43,22 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: AppColors.whiteColor,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.createProject);
-        },
-        backgroundColor: AppColors.secondery,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, size: 30, color: AppColors.whiteColor),
-      ),
-      appBar: MyCustomAppBar(head: "CoPaw", img: null),
+    return FutureBuilder<UserModel?>(
+      future: fetchCurrentUser(),
+      builder: (context, userSnapshot) {
+        final avatarUrl = userSnapshot.data?.avatarUrl;
 
-      /// ✅ REAL-TIME UI
-      body: BlocConsumer<ProjectViewModel, ProjectStates>(
-        listener: (context, state) {
-          if (state is ProjectSuccessState) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-          } else if (state is ProjectErrorState) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.error)));
-          }
-        },
-        builder: (context, state) {
-          if (state is ProjectsLoadingState) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is ProjectsErrorState) {
-            return Center(child: Text("Error: ${state.message}"));
-          } else if (state is ProjectsLoadedState) {
-            final projects = state.projects;
-            if (projects.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No projects found. Create a new project to get started!",
-                  style: TextStyle(fontSize: 16),
-                ),
-              );
-            }
+        return Scaffold(
+          backgroundColor: AppColors.whiteColor,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.createProject);
+            },
+            backgroundColor: AppColors.secondery,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, size: 30, color: AppColors.whiteColor),
+          ),
+          appBar: MyCustomAppBar(head: "CoPaw", img: avatarUrl),
 
             return ListView.builder(
               itemCount: projects.length,
@@ -113,32 +89,22 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       }
                     }
                   },
-                  child: ProjectCard(
-                    title: project.name ?? "Untitled",
-                    totalTasks: project.tasks.length,
-                    completedTasks: project.tasks
-                        .where((t) => t.status == 'done')
-                        .length,
-                    deadline: project.deadline ?? DateTime.now(),
-                    members: project.users.map((u) => u.name ?? "").toList(),
-                    onDelete: () => _confirmDelete(context, project.id!),
-                  ),
                 );
-              },
-            );
-          } else if (state is ProjectSuccessState) {
-            // ✅ Refresh projects after success
-            final user = FirebaseAuth.instance.currentUser;
-            if (user != null) {
-              context.read<ProjectViewModel>().listenToProjects(user.uid);
-            }
-            return const Center(child: CircularProgressIndicator());
-          }
+              } else if (state is ProjectSuccessState) {
+                // ✅ Refresh projects after success
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  context.read<ProjectViewModel>().listenToProjects(user.uid);
+                }
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          // Default fallback - show something instead of looping spinner
-          return const Center(child: Text("Loading projects..."));
-        },
-      ),
+              // Default fallback - show something instead of looping spinner
+              return const Center(child: Text("Loading projects..."));
+            },
+          ),
+        );
+      },
     );
   }
 
