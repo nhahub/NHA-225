@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key, this.initialMessage});
+  const LoginScreen({super.key, this.initialMessage});
 
   final String? initialMessage;
 

@@ -81,7 +81,7 @@ class ProjectService {
 
     // Sync to all users’ subcollections
     for (final user in project.users) {
-      await getUserProjectsCollection(user.id!)
+      await getUserProjectsCollection(user.id)
           .doc(project.id!)
           .set(project);
     }
@@ -96,11 +96,11 @@ class ProjectService {
       await getProjectsCollection().doc(projectId).delete();
 
       for (final user in project.users) {
-        await getUserProjectsCollection(user.id!)
+        await getUserProjectsCollection(user.id)
             .doc(projectId)
             .delete();
 
-        await removeProjectIdFromUser(user.id!, projectId);
+        await removeProjectIdFromUser(user.id, projectId);
       }
     }
   }
@@ -118,7 +118,7 @@ class ProjectService {
     if (!snapshot.exists) return 'Project not found.';
 
     final project = snapshot.data()!;
-    if (project.users == null) project.users = [];
+    project.users ??= [];
 
     // 3️⃣ Check if the user is already part of the project
     final exists = project.users.any((u) => u.id == user.id);
@@ -133,14 +133,14 @@ class ProjectService {
     });
 
     // 6️⃣ Add the project to the new user's personal "projects" subcollection
-    await getUserProjectsCollection(user.id!).doc(projectId).set(project);
+    await getUserProjectsCollection(user.id).doc(projectId).set(project);
 
     // 7️⃣ Add the project ID to the new user's main document
-    await addProjectIdToUser(user.id!, projectId);
+    await addProjectIdToUser(user.id, projectId);
 
     // 8️⃣ Sync the updated project data to all existing members’ subcollections
     for (final existingUser in project.users) {
-      await getUserProjectsCollection(existingUser.id!)
+      await getUserProjectsCollection(existingUser.id)
           .doc(projectId)
           .set(project);
     }

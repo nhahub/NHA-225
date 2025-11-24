@@ -56,7 +56,7 @@ class CustomButton extends StatelessWidget {
       opacity: isDisabled ? 0.6 : 1,
       child: SizedBox(
         height: height ?? 56,
-        width: width ?? MediaQuery.of(context).size.width * 0.89,
+       width: width ?? MediaQuery.of(context).size.width * 0.89,
         child: Material(
           color: Colors.transparent,
           child: Ink(

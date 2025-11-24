@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
 import 'package:copaw/Feature/Auth/screens/login_screen.dart';
 import 'package:copaw/Feature/Home/screens/home_screen.dart';
 import 'package:copaw/Feature/Insights/screens/insights_screen.dart';

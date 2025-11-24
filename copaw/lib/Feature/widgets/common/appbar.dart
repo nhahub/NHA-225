@@ -9,8 +9,7 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String head;
   final String? img;
 
-  const MyCustomAppBar({Key? key, required this.head, required this.img})
-    : super(key: key);
+  const MyCustomAppBar({super.key, required this.head, required this.img});
 
   Future<UserModel?> _fetchCurrentUser() async {
     final firebaseUser = FirebaseAuth.instance.currentUser;
