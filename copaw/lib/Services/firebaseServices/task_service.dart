@@ -130,7 +130,7 @@ class TaskService {
       if (data.isEmpty) continue;
       final project = ProjectModel.fromFirestore(data);
       final tasksForUser = project.tasks
-          .where((t) => t.createdBy == userId)
+          .where((t) => t.assignedTo.contains(userId))
           .toList();
       userTasks.addAll(tasksForUser);
     }

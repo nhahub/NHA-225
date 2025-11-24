@@ -1,6 +1,5 @@
 import 'package:copaw/Feature/Projects/cubit/project_view_model.dart';
 import 'package:copaw/Feature/Projects/cubit/project_states.dart';
-import 'package:copaw/Models/user.dart';
 import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Services/firebaseServices/project_service.dart';
 import 'package:copaw/Feature/Profile/profile_screen.dart';

@@ -110,7 +110,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
               // Status
               DropdownButtonFormField<String>(
-                value: _status,
+                initialValue: _status,
                 items: const [
                   DropdownMenuItem(value: 'todo', child: Text('To Do')),
                   DropdownMenuItem(value: 'doing', child: Text('Doing')),

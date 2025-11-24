@@ -55,11 +55,11 @@ static Future<UserModel?> getUserByEmail(String email) async {
     );
 
     // Authenticate user
-    final GoogleSignInAccount? googleUser =
+    final GoogleSignInAccount googleUser =
         await GoogleSignIn.instance.authenticate();
 
     // Obtain the auth details
-    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+    final GoogleSignInAuthentication googleAuth = googleUser!.authentication;
 
     // Create new Firebase credential
     final credential = GoogleAuthProvider.credential(

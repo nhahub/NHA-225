@@ -28,7 +28,7 @@ class ProjectModel {
 
   /// ✅ Convert Firestore data → ProjectModel
   factory ProjectModel.fromFirestore(Map<String, dynamic> data) {
-    DateTime? _convertToDate(dynamic value) {
+    DateTime? convertToDate(dynamic value) {
       if (value == null) return null;
       if (value is Timestamp) return value.toDate();
       if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
@@ -60,7 +60,7 @@ class ProjectModel {
                 ? Timestamp.fromMillisecondsSinceEpoch(data['createdAt'])
                 : null),
 
-      deadline: _convertToDate(data['deadline']),
+      deadline: convertToDate(data['deadline']),
     );
   }
 

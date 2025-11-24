@@ -14,7 +14,7 @@ class InsightsCubit extends Cubit<InsightsState> {
     emit(InsightsLoading());
     try {
       // Load projects using ProjectService
-      final projects = await ProjectService.getUserProjects(user.id!);
+      final projects = await ProjectService.getUserProjects(user.id);
 
       // Get all tasks from all projects
       final allTasks = <Task>[];

@@ -285,7 +285,7 @@ class InsightsScreen extends StatelessWidget {
                 const Divider(),
                 _MetricRow(
                   label: 'Avg Tasks per Project',
-                  value: '${avgTasksPerProject.toStringAsFixed(1)}',
+                  value: avgTasksPerProject.toStringAsFixed(1),
                   icon: Icons.analytics,
                 ),
                 const Divider(),

@@ -32,8 +32,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   void initState() {
     super.initState();
     fetchCurrentUser().then((user) {
-      if (user != null && user.id != null) {
-        context.read<ProjectViewModel>().listenToProjects(user.id!);
+      if (user != null) {
+        context.read<ProjectViewModel>().listenToProjects(user.id);
       }
     });
   }

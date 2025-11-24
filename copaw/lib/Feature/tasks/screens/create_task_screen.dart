@@ -60,12 +60,12 @@ class CreateTaskScreen extends StatelessWidget {
   }
 
   Widget _buildForm(BuildContext context, CreateTaskCubit cubit, CreateTaskState state) {
-    DateTime? _deadline;
-    String _status = 'todo';
-    String? _selectedUserId;
+    DateTime? deadline;
+    String status = 'todo';
+    String? selectedUserId;
     final projectUsers = project.users;
 
-    Future<void> _pickDate() async {
+    Future<void> pickDate() async {
       final now = DateTime.now();
       final picked = await showDatePicker(
         context: context,
@@ -73,7 +73,7 @@ class CreateTaskScreen extends StatelessWidget {
         firstDate: now,
         lastDate: DateTime(now.year + 5),
       );
-      if (picked != null) _deadline = picked;
+      if (picked != null) deadline = picked;
     }
 
     return Form(
@@ -109,7 +109,7 @@ class CreateTaskScreen extends StatelessWidget {
           const Text("Deadline", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           GestureDetector(
-            onTap: _pickDate,
+            onTap: pickDate,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
               decoration: BoxDecoration(
@@ -120,8 +120,8 @@ class CreateTaskScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _deadline != null
-                        ? "${_deadline!.day}/${_deadline!.month}/${_deadline!.year}"
+                    deadline != null
+                        ? "${deadline!.day}/${deadline!.month}/${deadline!.year}"
                         : "Select a date",
                     style: const TextStyle(color: Colors.black54),
                   ),
@@ -137,7 +137,7 @@ class CreateTaskScreen extends StatelessWidget {
           const SizedBox(height: 6),
           StatefulBuilder(builder: (context, setState) {
             return DropdownButtonFormField<String>(
-              value: _status,
+              initialValue: status,
               decoration: InputDecoration(
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -146,7 +146,7 @@ class CreateTaskScreen extends StatelessWidget {
                 DropdownMenuItem(value: 'doing', child: Text("Doing")),
                 DropdownMenuItem(value: 'done', child: Text("Done")),
               ],
-              onChanged: (value) => setState(() => _status = value!),
+              onChanged: (value) => setState(() => status = value!),
             );
           }),
           const SizedBox(height: 16),
@@ -156,7 +156,7 @@ class CreateTaskScreen extends StatelessWidget {
           const SizedBox(height: 6),
           StatefulBuilder(builder: (context, setState) {
             return DropdownButtonFormField<String>(
-              value: _selectedUserId,
+              initialValue: selectedUserId,
               hint: const Text("Select member"),
               decoration: InputDecoration(
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -167,7 +167,7 @@ class CreateTaskScreen extends StatelessWidget {
                   child: Text(user.name),
                 );
               }).toList(),
-              onChanged: (value) => setState(() => _selectedUserId = value),
+              onChanged: (value) => setState(() => selectedUserId = value),
             );
           }),
           const SizedBox(height: 24),
@@ -181,15 +181,15 @@ class CreateTaskScreen extends StatelessWidget {
                     icon: Icons.add,
                     inverted: true,
                     onPressed: () {
-                      if (_formKey.currentState!.validate() && _deadline != null) {
+                      if (_formKey.currentState!.validate() && deadline != null) {
                         cubit.createTask(
                           project: project,
                           user: user,
                           title: _titleController.text,
                           description: _descController.text,
-                          deadline: _deadline!,
-                          status: _status,
-                          assignedUserId: _selectedUserId,
+                          deadline: deadline!,
+                          status: status,
+                          assignedUserId: selectedUserId,
                         );
                       }
                     },

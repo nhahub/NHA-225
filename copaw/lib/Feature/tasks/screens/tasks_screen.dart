@@ -107,7 +107,7 @@ class KanbanScreen extends StatelessWidget {
                       task: task,
                       projectUsers: [],
                     ))
-                .toList(),
+                ,
             const SizedBox(height: 16),
           ],
         ),

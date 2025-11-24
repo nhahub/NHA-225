@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:copaw/Feature/widgets/common/appbar.dart';
-import 'package:copaw/utils/app_colors.dart';
-import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/Feature/widgets/AI/ProjectList.dart';
-import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/AI/SelectTasks.dart';
 import 'package:copaw/Feature/widgets/AI/customchat.dart';
 class AiAssistantScreen extends StatelessWidget {
