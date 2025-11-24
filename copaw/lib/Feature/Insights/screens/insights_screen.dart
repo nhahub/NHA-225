@@ -7,8 +7,8 @@ import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Models/task.dart';
 import 'package:copaw/Feature/Insights/cubit/insights_cubit.dart';
 import 'package:copaw/Feature/Insights/cubit/insights_state.dart';
-import 'package:copaw/Feature/Insights/widgets/tasks_status_chart.dart';
-import 'package:copaw/Feature/Insights/widgets/stat_card.dart';
+import 'package:copaw/Feature/widgets/insights/tasks_status_chart.dart';
+import 'package:copaw/Feature/widgets/insights/stat_card.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 
 class InsightsScreen extends StatelessWidget {
