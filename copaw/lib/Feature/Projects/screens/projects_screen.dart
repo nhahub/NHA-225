@@ -60,34 +60,67 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           ),
           appBar: MyCustomAppBar(head: "CoPaw", img: avatarUrl),
 
-            return ListView.builder(
-              itemCount: projects.length,
-              itemBuilder: (context, index) {
-                final project = projects[index];
-                return InkWell(
-                  onTap: () async {
-                    final user = await fetchCurrentUser();
-                    if (user != null) {
-                      // Navigate to project details
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProjectDetailsScreen(
-                            project: project,
-                            user: user,
-                          ),
-                        ),
-                      );
-                      // Refresh projects when returning from detail screen
-                      if (context.mounted) {
-                        final currentUser = FirebaseAuth.instance.currentUser;
-                        if (currentUser != null) {
-                          context.read<ProjectViewModel>().listenToProjects(
-                            currentUser.uid,
+          /// ✅ REAL-TIME UI
+          body: BlocConsumer<ProjectViewModel, ProjectStates>(
+            listener: (context, state) {
+              if (state is ProjectSuccessState) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              } else if (state is ProjectErrorState) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.error)));
+              }
+            },
+            builder: (context, state) {
+              if (state is ProjectsLoadingState) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is ProjectsErrorState) {
+                return Center(child: Text("Error: ${state.message}"));
+              } else if (state is ProjectsLoadedState) {
+                final projects = state.projects;
+                if (projects.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No projects found. Create a new project to get started!",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: projects.length,
+                  itemBuilder: (context, index) {
+                    final project = projects[index];
+                    return InkWell(
+                      onTap: () async {
+                        final user = await fetchCurrentUser();
+                        if (user != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProjectDetailsScreen(
+                                project: project,
+                                user: user,
+                              ),
+                            ),
                           );
                         }
-                      }
-                    }
+                      },
+                      child: ProjectCard(
+                        title: project.name ?? "Untitled",
+                        totalTasks: project.tasks.length,
+                        completedTasks: project.tasks
+                            .where((t) => t.status == 'done')
+                            .length,
+                        deadline: project.deadline ?? DateTime.now(),
+                        memberAvatars: project.users
+                            .map((u) => u.avatarUrl)
+                            .toList(),
+                        onDelete: () => _confirmDelete(context, project.id!),
+                      ),
+                    );
                   },
                 );
               } else if (state is ProjectSuccessState) {
