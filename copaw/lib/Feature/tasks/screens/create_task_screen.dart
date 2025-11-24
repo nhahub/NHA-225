@@ -7,6 +7,7 @@ import 'package:copaw/Models/user.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
+import 'package:copaw/Feature/widgets/common/date_picker_field.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/utils/app_validator.dart';
 
@@ -14,11 +15,7 @@ class CreateTaskScreen extends StatelessWidget {
   final ProjectModel project;
   final UserModel user;
 
-  CreateTaskScreen({
-    super.key,
-    required this.project,
-    required this.user,
-  });
+  CreateTaskScreen({super.key, required this.project, required this.user});
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
@@ -59,22 +56,15 @@ class CreateTaskScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildForm(BuildContext context, CreateTaskCubit cubit, CreateTaskState state) {
+  Widget _buildForm(
+    BuildContext context,
+    CreateTaskCubit cubit,
+    CreateTaskState state,
+  ) {
     DateTime? _deadline;
     String _status = 'todo';
     String? _selectedUserId;
     final projectUsers = project.users;
-
-    Future<void> _pickDate() async {
-      final now = DateTime.now();
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: now,
-        firstDate: now,
-        lastDate: DateTime(now.year + 5),
-      );
-      if (picked != null) _deadline = picked;
-    }
 
     return Form(
       key: _formKey,
@@ -92,84 +82,86 @@ class CreateTaskScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 🔹 Description
-          const Text("Description", style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            "Description",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 6),
           CustomTextFormField(
             controller: _descController,
             hintText: "Enter task description",
             maxLines: 3,
-            validator: (text) =>
-                (text == null || text.trim().isEmpty)
-                    ? "Please enter a description"
-                    : null,
+            validator: (text) => (text == null || text.trim().isEmpty)
+                ? "Please enter a description"
+                : null,
           ),
           const SizedBox(height: 16),
 
           // 🔹 Deadline picker
-          const Text("Deadline", style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          GestureDetector(
-            onTap: _pickDate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grayColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _deadline != null
-                        ? "${_deadline!.day}/${_deadline!.month}/${_deadline!.year}"
-                        : "Select a date",
-                    style: const TextStyle(color: Colors.black54),
-                  ),
-                  const Icon(Icons.calendar_today, color: Colors.grey),
-                ],
-              ),
-            ),
+          StatefulBuilder(
+            builder: (context, setState) {
+              return DatePickerField(
+                label: "Deadline",
+                selectedDate: _deadline,
+                onDateSelected: (newDate) {
+                  setState(() {
+                    _deadline = newDate;
+                  });
+                },
+              );
+            },
           ),
           const SizedBox(height: 16),
 
           // 🔹 Status
           const Text("Status", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          StatefulBuilder(builder: (context, setState) {
-            return DropdownButtonFormField<String>(
-              value: _status,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'todo', child: Text("To Do")),
-                DropdownMenuItem(value: 'doing', child: Text("Doing")),
-                DropdownMenuItem(value: 'done', child: Text("Done")),
-              ],
-              onChanged: (value) => setState(() => _status = value!),
-            );
-          }),
+          StatefulBuilder(
+            builder: (context, setState) {
+              return DropdownButtonFormField<String>(
+                value: _status,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'todo', child: Text("To Do")),
+                  DropdownMenuItem(value: 'doing', child: Text("Doing")),
+                  DropdownMenuItem(value: 'done', child: Text("Done")),
+                ],
+                onChanged: (value) => setState(() => _status = value!),
+              );
+            },
+          ),
           const SizedBox(height: 16),
 
           // 🔹 Assign To
-          const Text("Assign To", style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            "Assign To",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 6),
-          StatefulBuilder(builder: (context, setState) {
-            return DropdownButtonFormField<String>(
-              value: _selectedUserId,
-              hint: const Text("Select member"),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              items: projectUsers.map((user) {
-                return DropdownMenuItem(
-                  value: user.id,
-                  child: Text(user.name),
-                );
-              }).toList(),
-              onChanged: (value) => setState(() => _selectedUserId = value),
-            );
-          }),
+          StatefulBuilder(
+            builder: (context, setState) {
+              return DropdownButtonFormField<String>(
+                value: _selectedUserId,
+                hint: const Text("Select member"),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                items: projectUsers.map((user) {
+                  return DropdownMenuItem(
+                    value: user.id,
+                    child: Text(user.name),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => _selectedUserId = value),
+              );
+            },
+          ),
           const SizedBox(height: 24),
 
           // 🔹 Submit Button
@@ -181,7 +173,8 @@ class CreateTaskScreen extends StatelessWidget {
                     icon: Icons.add,
                     inverted: true,
                     onPressed: () {
-                      if (_formKey.currentState!.validate() && _deadline != null) {
+                      if (_formKey.currentState!.validate() &&
+                          _deadline != null) {
                         cubit.createTask(
                           project: project,
                           user: user,

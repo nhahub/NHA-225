@@ -4,6 +4,8 @@ import 'package:copaw/Models/project_model.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
+import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
+import 'package:copaw/Feature/widgets/common/date_picker_field.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final ProjectModel project;
@@ -32,8 +34,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.task.title);
-    _descriptionController =
-        TextEditingController(text: widget.task.description);
+    _descriptionController = TextEditingController(
+      text: widget.task.description,
+    );
     _status = widget.task.status;
     _dueDate = widget.task.deadline;
   }
@@ -43,18 +46,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDueDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _dueDate ?? DateTime.now(),
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-    );
-    if (picked != null) {
-      setState(() => _dueDate = picked);
-    }
   }
 
   void _saveTask() {
@@ -71,93 +62,143 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FB),
       appBar: AppBar(
-        title: const Text('Edit Task'),
-        backgroundColor: AppColors.mainColor,
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        toolbarHeight: 90,
+        backgroundColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF0F172A), AppColors.mainColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+          ),
+        ),
+        title: Row(
+          children: [
+            _RoundedIconButton(
+              icon: Icons.arrow_back,
+              onTap: () => Navigator.pop(context),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              "Edit Task",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
-              TextFormField(
+              CustomTextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.mainColor),
-                  ),
-                ),
+                labelText: 'Title',
+                hintText: 'Enter task title',
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Title is required' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // Description
-              TextFormField(
+              CustomTextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.mainColor),
-                  ),
-                ),
+                labelText: 'Description',
+                hintText: 'Enter task description',
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // Status
-              DropdownButtonFormField<String>(
-                value: _status,
-                items: const [
-                  DropdownMenuItem(value: 'todo', child: Text('To Do')),
-                  DropdownMenuItem(value: 'doing', child: Text('Doing')),
-                  DropdownMenuItem(value: 'done', child: Text('Done')),
-                ],
-                onChanged: (val) {
-                  if (val != null) setState(() => _status = val);
-                },
-                decoration: InputDecoration(
-                  labelText: 'Status',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.mainColor),
+              // Status Dropdown
+              const Text(
+                "Status",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.grayColor),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _status,
+                    isExpanded: true,
+                    items: const [
+                      DropdownMenuItem(value: 'todo', child: Text('To Do')),
+                      DropdownMenuItem(value: 'doing', child: Text('Doing')),
+                      DropdownMenuItem(value: 'done', child: Text('Done')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setState(() => _status = val);
+                    },
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // Due date
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _dueDate == null
-                          ? 'No due date'
-                          : 'Due: ${_dueDate!.toIso8601String()}'.split(' ')[0],
-                    style: TextStyle(color: Colors.black)),
-                  ),
-                  CustomButton(
-                    label: 'Pick Date',
-                    width: 120,
-                    inverted: false,
-                    onPressed: _pickDueDate,
-                  ),
-                ],
+              DatePickerField(
+                label: "Deadline",
+                selectedDate: _dueDate,
+                onDateSelected: (newDate) {
+                  setState(() {
+                    _dueDate = newDate;
+                  });
+                },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
 
-              // Save button
               CustomButton(
                 width: double.infinity,
                 label: 'Save Task',
-                inverted: false,
                 onPressed: _saveTask,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _RoundedIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _RoundedIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: Colors.white),
       ),
     );
   }

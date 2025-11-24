@@ -22,6 +22,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   AuthViewModel authViewModel = AuthViewModel();
+  NavigatorState? _navigator;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _navigator = Navigator.of(context, rootNavigator: true);
+  }
+
+  @override
+  void dispose() {
+    if (_navigator != null) {
+      DialogUtils.hideLoadingWithNavigator(_navigator!);
+    }
+    authViewModel.close();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -49,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthViewModel, AuthStates>(
@@ -86,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
               context: context,
               message: state.errorMessage,
               posActionName: "OK",
-              posAction: () => Navigator.pop(context),
+              // Removed redundant Navigator.pop(context) to prevent crash
             );
           });
         }

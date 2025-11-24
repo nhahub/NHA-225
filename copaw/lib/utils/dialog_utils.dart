@@ -4,12 +4,17 @@ import 'package:flutter/material.dart';
 
 class DialogUtils {
   static bool _isLoadingVisible = false;
+  static bool get isLoadingVisible => _isLoadingVisible;
+
   /// Shows a loading dialog with a circular progress indicator and a loading text.
   /// The dialog is not dismissible by tapping outside.
   static void showLoading({
     required BuildContext context,
     required String loadingText,
   }) {
+    if (_isLoadingVisible) {
+      hideLoading(context: context);
+    }
     _isLoadingVisible = true;
     showDialog(
       barrierDismissible: false,
@@ -45,6 +50,14 @@ class DialogUtils {
   static void hideLoadingIfVisible({required BuildContext context}) {
     if (!_isLoadingVisible) return;
     final navigator = Navigator.of(context, rootNavigator: true);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+    _isLoadingVisible = false;
+  }
+
+  static void hideLoadingWithNavigator(NavigatorState navigator) {
+    if (!_isLoadingVisible) return;
     if (navigator.canPop()) {
       navigator.pop();
     }

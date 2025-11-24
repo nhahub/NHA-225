@@ -5,7 +5,7 @@ import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
 import 'package:copaw/provider/user_cubit.dart';
-import 'package:copaw/utils/app_routes.dart';
+
 import 'package:copaw/utils/app_validator.dart';
 import 'package:copaw/utils/dialog_utils.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +21,22 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   AuthViewModel authViewModel = AuthViewModel();
+  NavigatorState? _navigator;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _navigator = Navigator.of(context, rootNavigator: true);
+  }
+
+  @override
+  void dispose() {
+    if (_navigator != null) {
+      DialogUtils.hideLoadingWithNavigator(_navigator!);
+    }
+    authViewModel.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +247,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           side: const BorderSide(color: Colors.grey),
                         ),
                       ),
-                      onPressed: () => authViewModel.registerWithGoogle(context),
+                      onPressed: () =>
+                          authViewModel.registerWithGoogle(context),
                     ),
                   ),
 
