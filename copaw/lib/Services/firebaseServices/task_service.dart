@@ -13,13 +13,36 @@ class TaskService {
     final projectRef = _firestore
         .collection(ProjectModel.collectionName)
         .doc(project.id);
-    final updatedTasks = project.tasks
+
+    // Get the latest project data from database to avoid stale data
+    final snapshot = await projectRef.get();
+    if (!snapshot.exists || snapshot.data() == null) {
+      throw Exception("Project not found for ID: ${project.id}");
+    }
+    final projectFromDb = ProjectModel.fromFirestore(snapshot.data()!);
+
+    // Update the task in the tasks list
+    final updatedTasks = projectFromDb.tasks
         .map((t) => t.id == task.id ? task : t)
         .toList();
 
+    // Update global project collection
     await projectRef.update({
       'tasks': updatedTasks.map((t) => t.toJson()).toList(),
     });
+
+    // Sync to all user subcollections (like addTaskToProject does)
+    for (final user in projectFromDb.users) {
+      final userProjectRef = _firestore
+          .collection('users')
+          .doc(user.id)
+          .collection(ProjectModel.collectionName)
+          .doc(project.id);
+
+      await userProjectRef.update({
+        'tasks': updatedTasks.map((t) => t.toJson()).toList(),
+      });
+    }
   }
 
   static Future<void> deleteTask(String taskId, ProjectModel project) async {

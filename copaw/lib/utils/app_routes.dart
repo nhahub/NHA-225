@@ -3,9 +3,8 @@ class AppRoutes {
   static const String createProject = '/createProject';
   static const String login = '/login';
   static const String projectDetails = '/projectDetails';
-  static const String Aichat = '/aichat';
+  static const String insights = '/insights';
   static const String calender = '/calender';
-  static const String Taskscreen= '/KanbanScreen';
+  static const String Taskscreen = '/KanbanScreen';
   static const String profile = '/profile';
-  
 }
