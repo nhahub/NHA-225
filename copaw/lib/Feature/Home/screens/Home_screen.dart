@@ -1,7 +1,7 @@
 import 'package:copaw/Feature/Projects/screens/projects_screen.dart';
 import 'package:copaw/Feature/Tasks/screens/tasks_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
-import 'package:copaw/Feature/Ai/screens/ai_assistant_screen.dart';
+import 'package:copaw/Feature/Insights/screens/insights_screen.dart';
 import 'package:copaw/Feature/Widgets/Common/custom_bottom_nav.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _pages = [
       const ProjectsScreen(),
       KanbanScreen(user: widget.user),
-       CalendarScreen(user: widget.user,),
-       AiAssistantScreen(),
+      CalendarScreen(user: widget.user),
+      InsightsScreen(user: widget.user),
     ];
   }
 

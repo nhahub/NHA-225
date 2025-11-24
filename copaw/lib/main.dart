@@ -16,6 +16,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
+import 'package:copaw/Feature/Insights/screens/insights_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,8 +54,9 @@ class Copaw extends StatelessWidget {
           case AppRoutes.calender:
             final user = settings.arguments as UserModel?;
             return MaterialPageRoute(builder: (_) =>  CalendarScreen(user: user!));
-          case AppRoutes.Aichat:
-            return MaterialPageRoute(builder: (_) => AiAssistantScreen());
+          case AppRoutes.insights:
+            final user = settings.arguments as UserModel?;
+              return MaterialPageRoute(builder: (_) => InsightsScreen(user: user!));
           case AppRoutes.home:
             final user = settings.arguments as UserModel?;
             return MaterialPageRoute(builder: (_) => HomeScreen(user: user!));

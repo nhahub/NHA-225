@@ -33,9 +33,7 @@ class CustomBottomNav extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           child: Theme(
             data: Theme.of(context).copyWith(
-              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                
-              ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(),
             ),
             child: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
@@ -66,9 +64,9 @@ class CustomBottomNav extends StatelessWidget {
                   label: 'Calendar',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.smart_toy_outlined),
-                  activeIcon: Icon(Icons.smart_toy),
-                  label: 'AI',
+                  icon: Icon(Icons.insights_outlined),
+                  activeIcon: Icon(Icons.insights),
+                  label: 'Insights',
                 ),
               ],
             ),

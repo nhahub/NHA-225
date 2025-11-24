@@ -18,8 +18,10 @@ class ProjectDetailsCubit extends Cubit<ProjectDetailsState> {
 
   /// Edit an existing task
   Future<void> editTask(Task task) async {
-    await TaskService.updateTask(task, project); // replaces old task
-    await retrieveTasks(); // refresh stream
+    // Use current state's project which has the latest tasks, not the original project
+    final currentProject = state.project;
+    await TaskService.updateTask(task, currentProject);
+    // No need to call retrieveTasks() as the stream will automatically update
   }
 
   /// Listen to project tasks in real-time
@@ -28,7 +30,9 @@ class ProjectDetailsCubit extends Cubit<ProjectDetailsState> {
 
     _taskSubscription = TaskService.listenToProjectTasks(project.id!).listen(
       (tasks) {
-        emit(state.copyWith(project: project.copyWith(tasks: tasks)));
+        // Update the project with new tasks while preserving other project data
+        final updatedProject = state.project.copyWith(tasks: tasks);
+        emit(state.copyWith(project: updatedProject));
       },
       onError: (error) {
         print("Task stream error: $error");

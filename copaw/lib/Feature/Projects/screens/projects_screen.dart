@@ -92,7 +92,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   onTap: () async {
                     final user = await fetchCurrentUser();
                     if (user != null) {
-                      Navigator.push(
+                      // Navigate to project details
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProjectDetailsScreen(
@@ -101,6 +102,15 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                           ),
                         ),
                       );
+                      // Refresh projects when returning from detail screen
+                      if (context.mounted) {
+                        final currentUser = FirebaseAuth.instance.currentUser;
+                        if (currentUser != null) {
+                          context.read<ProjectViewModel>().listenToProjects(
+                            currentUser.uid,
+                          );
+                        }
+                      }
                     }
                   },
                   child: ProjectCard(
