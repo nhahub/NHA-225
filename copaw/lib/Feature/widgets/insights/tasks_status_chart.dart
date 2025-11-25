@@ -1,3 +1,4 @@
+import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
@@ -47,7 +48,7 @@ class TasksStatusChart extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color:AppColors.text,
               ),
             ),
           ),
