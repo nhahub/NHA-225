@@ -31,7 +31,6 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(28),
           bottomRight: Radius.circular(28),
-          
         ),
         boxShadow: [
           BoxShadow(
@@ -79,8 +78,6 @@ class MyCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                
-                
                 GestureDetector(
                   onTap: () async {
                     final user = await _fetchCurrentUser();

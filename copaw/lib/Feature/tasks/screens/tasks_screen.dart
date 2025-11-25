@@ -6,6 +6,7 @@ import 'package:copaw/Feature/widgets/task/task_item.dart';
 import 'package:copaw/Models/task.dart';
 import 'package:copaw/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
+import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -93,6 +94,7 @@ class KanbanScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  color: AppColors.text,
                 ),
               ),
             ),

@@ -5,6 +5,8 @@ import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
 import 'package:copaw/provider/user_cubit.dart';
+import 'package:copaw/utils/app_assets.dart';
+import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/utils/app_validator.dart';
 import 'package:copaw/utils/dialog_utils.dart';
 import 'package:flutter/material.dart';
@@ -116,16 +118,11 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 80),
-                  const Text(
-                    "Copaw",
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  
+                  const Image(
+                    image: AssetImage(AppAssets.logo),
+                
                   ),
-                  const SizedBox(height: 50),
 
                   Align(
                     alignment: Alignment.centerLeft,
@@ -136,6 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
+                          color: AppColors.text
                         ),
                       ),
                     ),
@@ -157,6 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
+                          color: AppColors.text
                         ),
                       ),
                     ),
@@ -200,11 +199,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: const Icon(
                         FontAwesomeIcons.google,
                         size: 32,
-                        color: Colors.black,
+                        color: AppColors.text,
                       ),
                       label: const Text(
                         "  Continue with Google",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(fontSize: 18, color: AppColors.text),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.grey),
@@ -223,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don't have an account?"),
+                      const Text("Don't have an account?",style: TextStyle(color: AppColors.text),),
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(

@@ -1,3 +1,4 @@
+import 'package:copaw/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 
@@ -66,7 +67,7 @@ class StatCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: AppColors.text,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

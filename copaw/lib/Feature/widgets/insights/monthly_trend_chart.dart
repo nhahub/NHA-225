@@ -50,7 +50,7 @@ class MonthlyTrendChart extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: AppColors.text
               ),
             ),
           ),
