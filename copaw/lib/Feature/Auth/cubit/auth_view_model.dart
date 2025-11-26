@@ -22,6 +22,7 @@ class AuthViewModel extends Cubit<AuthStates> {
   void register(BuildContext context) async {
     try {
       if (formKey.currentState!.validate()) {
+        if (isClosed) return;
         emit(AuthLoadingState());
         // Create user with email and password using FirebaseAuth
         // This will return a UserCredential object containing the user's information
@@ -31,6 +32,7 @@ class AuthViewModel extends Cubit<AuthStates> {
               email: emailController.text,
               password: passwordController.text,
             );
+        if (isClosed) return;
 
         // Create a MyUser object with the user's information
         // This object will be used to store user data in Firestore
@@ -43,12 +45,16 @@ class AuthViewModel extends Cubit<AuthStates> {
 
         // Add the user to Firestore using FirebaseUtils
         await AuthService.addUserToFirestore(myUser);
+        if (isClosed) return;
 
         // Update the UserCubit with the new user information
         context.read<UserCubit>().setUser(myUser);
-        emit(AuthSuccessState(successMessage: "Registration successful"));
+        if (!isClosed) {
+          emit(AuthSuccessState(successMessage: "Registration successful"));
+        }
       }
     } on FirebaseAuthException catch (e) {
+      if (isClosed) return;
       // Show appropriate error messages based on the error code
       // These messages will inform the user about the specific issue that occurred
       if (e.code == 'weak-password') {
@@ -75,13 +81,16 @@ class AuthViewModel extends Cubit<AuthStates> {
 
       // Catch any other errors that occur during registration
     } catch (e) {
-      emit(AuthErrorState(errorMessage: e.toString()));
+      if (!isClosed) {
+        emit(AuthErrorState(errorMessage: e.toString()));
+      }
     }
   }
 
   void login(BuildContext context) async {
     try {
       if (formKey.currentState!.validate()) {
+        if (isClosed) return;
         emit(AuthLoadingState());
         // Sign in with email and password
         // This uses FirebaseAuth to authenticate the user
@@ -91,36 +100,46 @@ class AuthViewModel extends Cubit<AuthStates> {
               email: emailController.text,
               password: passwordController.text,
             );
+        if (isClosed) return;
 
         final firebaseUser = credential.user;
         if (firebaseUser == null) {
           await FirebaseAuth.instance.signOut();
-          emit(
-            AuthErrorState(
-              errorMessage:
-                  "Login failed. Please try again or contact support if the issue persists.",
-            ),
-          );
+          if (!isClosed) {
+            emit(
+              AuthErrorState(
+                errorMessage:
+                    "Login failed. Please try again or contact support if the issue persists.",
+              ),
+            );
+          }
           return;
         }
 
         var user = await AuthService.readUserFromFireStore(firebaseUser.uid);
+        if (isClosed) return;
+        
         if (user == null) {
           await FirebaseAuth.instance.signOut();
-          emit(
-            AuthErrorState(
-              errorMessage:
-                  "We couldn't find your profile data. Please register again.",
-            ),
-          );
+          if (!isClosed) {
+            emit(
+              AuthErrorState(
+                errorMessage:
+                    "We couldn't find your profile data. Please register again.",
+              ),
+            );
+          }
           return;
         }
 
         // Update the UserCubit with the logged-in user's information
         context.read<UserCubit>().setUser(user);
-        emit(AuthSuccessState(successMessage: "Login successful"));
+        if (!isClosed) {
+          emit(AuthSuccessState(successMessage: "Login successful"));
+        }
       }
     } on FirebaseAuthException catch (e) {
+      if (isClosed) return;
       if (e.code == 'invalid-credential') {
         emit(
           AuthErrorState(errorMessage: "The email or password is incorrect."),
@@ -134,24 +153,31 @@ class AuthViewModel extends Cubit<AuthStates> {
         );
       }
     } catch (e) {
-      emit(AuthErrorState(errorMessage: e.toString()));
+      if (!isClosed) {
+        emit(AuthErrorState(errorMessage: e.toString()));
+      }
     }
   }
 
   void loginWithGoogle(BuildContext context) async {
+    if (isClosed) return;
     emit(AuthLoadingState());
 
     try {
       // 1️⃣ Prompt user to select a Google account
       UserCredential userCredential = await AuthService().signInWithGoogle();
+      if (isClosed) return;
+      
       User? firebaseUser = userCredential.user;
       // Safety: if sign-in was canceled
       if (firebaseUser == null) {
-        emit(
-          AuthErrorState(
-            errorMessage: "Google sign-in was canceled or failed.",
-          ),
-        );
+        if (!isClosed) {
+          emit(
+            AuthErrorState(
+              errorMessage: "Google sign-in was canceled or failed.",
+            ),
+          );
+        }
         return;
       }
 
@@ -159,41 +185,49 @@ class AuthViewModel extends Cubit<AuthStates> {
       UserModel? existingUser = await AuthService.readUserFromFireStore(
         firebaseUser.uid,
       );
+      if (isClosed) return;
 
       if (existingUser == null) {
         // Not registered in Firestore → block login
-        // await FirebaseAuth.instance.signOut(); // remove auth session
-        emit(
-          AuthErrorState(
-            errorMessage:
-                "This Google account is not registered yet. Please register first.",
-          ),
-        );
-        print("USER ISSSS____________________________ :   $existingUser");
-        print("CURRENT STATE AFTER EMIT: ${state.runtimeType}");
+        await FirebaseAuth.instance.signOut();
+        if (!isClosed) {
+          emit(
+            AuthErrorState(
+              errorMessage:
+                  "This Google account is not registered yet. Please register first.",
+            ),
+          );
+        }
         return;
       }
 
       // 3️⃣ Firestore user exists → login success
       context.read<UserCubit>().setUser(existingUser);
-      emit(
-        AuthSuccessState(
-          successMessage: "Google login successful",
-          user: firebaseUser,
-        ),
-      );
+      if (!isClosed) {
+        emit(
+          AuthSuccessState(
+            successMessage: "Google login successful",
+            user: firebaseUser,
+          ),
+        );
+      }
     } catch (e) {
       // Any unexpected errors → ensure user is signed out and emit error
       await FirebaseAuth.instance.signOut();
-      emit(AuthErrorState(errorMessage: e.toString()));
+      if (!isClosed) {
+        emit(AuthErrorState(errorMessage: e.toString()));
+      }
     }
   }
 
   void registerWithGoogle(BuildContext context) async {
     try {
+      if (isClosed) return;
       emit(AuthLoadingState());
 
       UserCredential userCredential = await AuthService().signInWithGoogle();
+      if (isClosed) return;
+      
       User? user = userCredential.user;
 
       if (user != null) {
@@ -201,17 +235,19 @@ class AuthViewModel extends Cubit<AuthStates> {
         UserModel? existingUser = await AuthService.readUserFromFireStore(
           user.uid,
         );
+        if (isClosed) return;
 
         if (existingUser != null) {
           // User already exists → cannot register twice
           await FirebaseAuth.instance.signOut();
-
-          emit(
-            AuthErrorState(
-              errorMessage:
-                  "This Google account is already registered. Please login instead.",
-            ),
-          );
+          if (!isClosed) {
+            emit(
+              AuthErrorState(
+                errorMessage:
+                    "This Google account is already registered. Please login instead.",
+              ),
+            );
+          }
           return;
         }
 
@@ -224,17 +260,22 @@ class AuthViewModel extends Cubit<AuthStates> {
         );
 
         await AuthService.addUserToFirestore(newUser);
+        if (isClosed) return;
+        
         context.read<UserCubit>().setUser(newUser);
-
-        emit(
-          AuthSuccessState(
-            successMessage: "Google registration successful",
-            user: user,
-          ),
-        );
+        if (!isClosed) {
+          emit(
+            AuthSuccessState(
+              successMessage: "Google registration successful",
+              user: user,
+            ),
+          );
+        }
       }
     } catch (e) {
-      emit(AuthErrorState(errorMessage: e.toString()));
+      if (!isClosed) {
+        emit(AuthErrorState(errorMessage: e.toString()));
+      }
     }
   }
 
