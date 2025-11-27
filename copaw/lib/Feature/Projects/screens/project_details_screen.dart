@@ -1,4 +1,5 @@
 import 'package:copaw/Feature/tasks/screens/edittask.dart';
+import 'package:copaw/utils/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:copaw/Models/project_model.dart';
@@ -458,12 +459,17 @@ class ProjectDetailsScreen extends StatelessWidget {
           if (taskList.isEmpty)
             Expanded(
               child: Center(
-                child: Text(
-                  "No tasks yet",
-                  style: TextStyle(
-                    color: AppColors.textColor.withOpacity(0.5),
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Column(
+                  children: [
+                    Text(
+                      "No tasks yet",
+                      style: TextStyle(
+                        color: AppColors.textColor.withOpacity(0.5),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Image.asset(AppAssets.emptyTasks, width: 200, height: 200),
+                  ],
                 ),
               ),
             )

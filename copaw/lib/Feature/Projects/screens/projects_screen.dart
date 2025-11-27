@@ -81,14 +81,20 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               } else if (state is ProjectsLoadedState) {
                 final projects = state.projects;
                 if (projects.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "No projects found. Create a new project to get started!",
-                      style: TextStyle(fontSize: 16),
+                    return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "No projects yet",
+                          style: TextStyle(fontSize: 16,color: AppColors.text),
+                          
+                        ),
+                        Image.asset(AppAssets.emptyProjects,width: 200,height: 200,),
+                      ],
                     ),
                   );
                 }
-
                 return ListView.builder(
                   itemCount: projects.length,
                   itemBuilder: (context, index) {

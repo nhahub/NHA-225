@@ -3,4 +3,6 @@ class AppAssets {
   static const String logo = 'assets/copaw.png';
   static const String copaw = 'assets/copaw T.png';
   static const String copawB = 'assets/l1.png';
+  static const String emptyProjects = 'assets/no.png';
+  static const String emptyTasks = 'assets/Files.png';
 }
