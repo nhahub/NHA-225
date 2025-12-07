@@ -55,7 +55,11 @@ class _LoginScreenState extends State<LoginScreen> {
             action: SnackBarAction(
               label: "OK",
               onPressed: () {
-                Navigator.pop(context);
+                if (!mounted) return;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => RegisterScreen()),
+                );
               },
             ),
           ),

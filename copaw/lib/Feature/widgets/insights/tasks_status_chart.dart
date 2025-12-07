@@ -120,7 +120,7 @@ class TasksStatusChart extends StatelessWidget {
                         const SizedBox(height: 12),
                         _LegendItem(
                           color: Colors.orange,
-                          label: 'In Progress',
+                          label: 'Doing',
                           count: statusData['Doing']!,
                         ),
                         const SizedBox(height: 12),
