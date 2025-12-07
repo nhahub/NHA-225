@@ -4,7 +4,7 @@ import 'package:copaw/Feature/Auth/screens/register_screen.dart';
 import 'package:copaw/Feature/Home/screens/Home_screen.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';
-import 'package:copaw/provider/user_cubit.dart';
+import 'package:copaw/Feature/Auth/cubit/user_cubit.dart';
 import 'package:copaw/utils/app_assets.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/utils/app_validator.dart';

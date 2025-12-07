@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_bloc.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_event.dart';

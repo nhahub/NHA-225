@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:copaw/Models/task.dart';
-import 'package:copaw/Models/project_model.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
 
 class TaskService {
   static final _firestore = FirebaseFirestore.instance;

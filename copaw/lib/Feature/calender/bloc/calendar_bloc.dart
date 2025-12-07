@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:copaw/Models/task.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'calendar_event.dart';
 import 'calendar_state.dart';

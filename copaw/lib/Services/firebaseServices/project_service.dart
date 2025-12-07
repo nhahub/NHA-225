@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:copaw/Models/project_model.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 
 class ProjectService {

@@ -1,4 +1,4 @@
-import 'package:copaw/Models/project_model.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class ProjectStates extends Equatable {

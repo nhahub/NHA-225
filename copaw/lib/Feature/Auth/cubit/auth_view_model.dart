@@ -1,7 +1,7 @@
 import 'package:copaw/Feature/Auth/cubit/auth_states.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
-import 'package:copaw/provider/user_cubit.dart';
+import 'package:copaw/Feature/Auth/cubit/user_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

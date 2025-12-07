@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 
 /// Base class for all calendar states
 abstract class CalendarState extends Equatable {

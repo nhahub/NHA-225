@@ -1,7 +1,7 @@
 import 'package:copaw/Feature/Projects/screens/project_details_screen.dart';
 import 'package:copaw/Feature/widgets/common/appbar.dart';
 import 'package:copaw/Feature/widgets/project/project_card.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/utils/app_assets.dart';
 import 'package:copaw/utils/app_colors.dart';

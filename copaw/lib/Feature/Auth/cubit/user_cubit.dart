@@ -1,4 +1,4 @@
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserCubit extends Cubit<UserModel?> {

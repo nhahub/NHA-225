@@ -3,7 +3,7 @@ import 'package:copaw/Feature/Tasks/screens/tasks_screen.dart';
 import 'package:copaw/Feature/calender/screens/calender_screen.dart';
 import 'package:copaw/Feature/Insights/screens/insights_screen.dart';
 import 'package:copaw/Feature/Widgets/Common/custom_bottom_nav.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {

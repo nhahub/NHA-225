@@ -1,5 +1,5 @@
-import 'package:copaw/Models/task.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:copaw/Feature/widgets/AI/CustomContainer.dart';
 import 'package:copaw/utils/app_colors.dart';

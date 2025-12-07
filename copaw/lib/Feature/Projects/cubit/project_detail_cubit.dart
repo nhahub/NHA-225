@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:copaw/Models/project_model.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
 
 part 'project_details_state.dart';

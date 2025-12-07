@@ -6,9 +6,9 @@ import 'package:copaw/Feature/widgets/common/appbar.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_bloc.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_event.dart';
 import 'package:copaw/Feature/calender/bloc/calendar_state.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 import 'package:copaw/Feature/widgets/calender/custom_calendar.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 
 class CalendarScreen extends StatelessWidget {
   final UserModel user;

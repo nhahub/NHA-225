@@ -1,4 +1,4 @@
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/Services/firebaseServices/project_service.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
@@ -7,7 +7,7 @@ import 'package:copaw/utils/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:copaw/provider/user_cubit.dart';
+import 'package:copaw/Feature/Auth/cubit/user_cubit.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';

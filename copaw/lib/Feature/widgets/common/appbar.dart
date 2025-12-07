@@ -1,4 +1,4 @@
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/auth_service.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/utils/app_routes.dart';

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:copaw/Models/user.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 
 class ProjectModel {
   static const String collectionName = "projects";

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:copaw/Models/task.dart';
-import 'package:copaw/Models/project_model.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/utils/app_colors.dart';
 import 'package:copaw/Feature/widgets/common/custom_button.dart';
 import 'package:copaw/Feature/widgets/common/custom_text_field.dart';

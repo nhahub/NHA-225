@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:copaw/Models/user.dart';
-import 'package:copaw/Models/task.dart'; // ✅ import Task model
+import 'package:copaw/Feature/Auth/Models/user.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 
 /// Base class for all calendar events
 abstract class CalendarEvent extends Equatable {

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:copaw/Models/project_model.dart';
-import 'package:copaw/Models/task.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
 
 abstract class InsightsState extends Equatable {
   @override

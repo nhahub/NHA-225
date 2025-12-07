@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:copaw/Models/project_model.dart';
-import 'package:copaw/Models/task.dart';
-import 'package:copaw/Models/user.dart';
+import 'package:copaw/Feature/Projects/Model/project_model.dart';
+import 'package:copaw/Feature/tasks/Models/task.dart';
+import 'package:copaw/Feature/Auth/Models/user.dart';
 import 'package:copaw/Services/firebaseServices/task_service.dart';
 import 'create_task_state.dart';
 
