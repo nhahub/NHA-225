@@ -18,7 +18,7 @@ class InsightsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appBar = MyCustomAppBar(head: 'Insights', img: null);
+    final appBar = MyCustomAppBar(head: 'Insights', img: user.avatarUrl);
 
     return BlocProvider(
       create: (_) => InsightsCubit()..loadInsightsData(user),
@@ -159,7 +159,7 @@ class InsightsScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color:AppColors.text,
+              color: AppColors.text,
             ),
           ),
         ),
